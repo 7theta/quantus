@@ -8,17 +8,17 @@
 ;;   You must not remove this notice, or any others, from this software.
 
 (ns quantus.mass
-  (:require [quantus.core :refer [->Quantity ->Unit]])
-  #?(:clj (:import [quantus.core Quantity Unit])))
+  (:require [quantus.core :refer [->Quantity]])
+  #?(:clj (:import [quantus.core Quantity])))
 
-(defn ->kg
-  [^Quantity lb]
-  (cond-> lb
-    (= :lb (:unit ^Unit (:unit lb)))
-    (#(->Quantity :mass (* (:value %) 2.205) (->Unit :kg 1)))))
+;; (defn ->kg
+;;   [^Quantity lb]
+;;   (cond-> lb
+;;     (= :lb (:unit ^Unit (:unit lb)))
+;;     (#(->Quantity :mass (* (:value %) 2.205) (->Unit :kg 1)))))
 
-(defn ->lb
-  [^Quantity kg]
-  (cond-> kg
-    (= :kg (:unit ^Unit (:unit kg)))
-    (#(->Quantity :angle (/ (:value %) 2.205) (->Unit :lb 1)))))
+;; (defn ->lb
+;;   [^Quantity kg]
+;;   (cond-> kg
+;;     (= :kg (:unit ^Unit (:unit kg)))
+;;     (#(->Quantity :angle (/ (:value %) 2.205) (->Unit :lb 1)))))

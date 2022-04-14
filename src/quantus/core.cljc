@@ -9,39 +9,40 @@
 
 (ns quantus.core
   (:require [quantus.math :as qm]
+            [quantus.units :as u]
             [utilis.fn :refer [apply-kw]]
             [clojure.string :as st]))
 
-(defrecord Unit [prefix unit exponent]
-  Object
-  (toString [^Unit this]
-    (if (or (and prefix (> prefix 1)) (and exponent (> exponent 1)))
-      (str "[" (st/join " " (remove nil? [prefix unit exponent])) "]")
-      (str unit))))
+;; (defrecord Unit [prefix unit exponent]
+;;   Object
+;;   (toString [^Unit this]
+;;     (if (or (and prefix (> prefix 1)) (and exponent (> exponent 1)))
+;;       (str "[" (st/join " " (remove nil? [prefix unit exponent])) "]")
+;;       (str unit))))
 
-#?(:clj (defmethod print-method Unit [^Unit u ^java.io.Writer w]
-          (.write w (.toString u))))
+;; #?(:clj (defmethod print-method Unit [^Unit u ^java.io.Writer w]
+;;           (.write w (.toString u))))
 
-#?(:clj (. clojure.pprint/simple-dispatch addMethod Unit #(print-method % *out*)))
+;; #?(:clj (. clojure.pprint/simple-dispatch addMethod Unit #(print-method % *out*)))
 
-(defn ->Unit
-  ([unit] (->Unit unit 1))
-  ([unit exponent] (->Unit nil unit exponent))
-  ([prefix unit exponent] (Unit. prefix unit exponent)))
+;; (defn ->Unit
+;;   ([unit] (->Unit unit 1))
+;;   ([unit exponent] (->Unit nil unit exponent))
+;;   ([prefix unit exponent] (Unit. prefix unit exponent)))
 
-(defrecord Quantity [type value ^Unit unit]
+(defrecord Quantity [value ^clojure.lang.Keyword unit-type]
   Object
   (toString [^Quantity this]
-    (str "#quantity/" (name type) " [" value " " unit "]")))
+    (str "#quantity/" (name unit-type) " [" value "]")))
 
 #?(:clj (defmethod print-method Quantity [^Quantity q ^java.io.Writer w]
           (.write w (.toString q))))
 
 #?(:clj (. clojure.pprint/simple-dispatch addMethod Quantity #(print-method % *out*)))
 
-(defn ->Quantity
-  [type value unit]
-  (Quantity. type value unit))
+#_(defn ->Quantity
+    [value unit-type]
+    (Quantity. value unit-type))
 
 (declare parse-quantity)
 
@@ -52,68 +53,98 @@
 (defn parse-angle [q] (parse-quantity :angle q))
 (defn parse-temperature [q] (parse-quantity :temperature q))
 
-(defn unit-match?
-  [^Quantity a ^Quantity b & {:keys [match-exponent] :or {match-exponent true}}]
-  (let [^Unit a-unit (:unit a)
-        ^Unit b-unit (:unit b)]
-    (and (= (:type a) (:type b))
-         (= (:unit a-unit) (:unit b-unit))
-         (if match-exponent (= (:exponent a-unit) (:exponent b-unit)) true))))
+(defn unit-type-match?
+  [^Quantity a ^Quantity b]
+  (= (:unit-type a) (:unit-type b)))
 
-(defn assert-unit-match
-  [^Quantity a ^Quantity b & opts]
-  (when-not (apply-kw unit-match? a b opts)
-    (throw (ex-info "Quantities must have compatible type and units" {:a a :b b}))))
+(defn assert-unit-type-match
+  [^Quantity a ^Quantity b]
+  (when-not (unit-type-match? a b)
+    (throw (ex-info "Quantities must have the same unit type." {:a a :b b}))))
+
+(defn assert-unit-type
+  [^Quantity a unit-type]
+  (when-not (= (:unit-type a) unit-type)
+    (throw (ex-info "The provided quantity is not compatible with the target unit type." {:quantity a :expected-unit-type unit-type}))))
+
+(defn meters [v] (->Quantity v :length))
+(defn to-meters [^Quantity q] (assert-unit-type q :length) (:value q))
+
+(defn feet [v] (->Quantity (u/feet->meters v) :length))
+(defn to-feet [^Quantity q] (assert-unit-type q :length) (u/meters->feet (:value q)))
+
+(defn mps [v] (->Quantity v :speed))
+(defn to-mps [^Quantity q] (assert-unit-type q :speed) (:value q))
+
+(defn kn [v] (->Quantity (u/kn->mps v) :speed))
+(defn to-kn [^Quantity q] (assert-unit-type q :speed) (u/mps->kn (:value q)))
+
+(defn fpm [v] (->Quantity (u/fpm->mps v) :speed))
+(defn to-fpm [^Quantity q] (assert-unit-type q :speed) (u/mps->fpm (:value q)))
+
+(defn kg [v] (->Quantity v :mass))
+(defn to-kg [^Quantity q] (assert-unit-type q :mass) (:value q))
+
+(defn lb [v] (->Quantity (u/lb->kg v) :mass))
+(defn to-lb [^Quantity q] (assert-unit-type q :mass) (u/kg->lb (:value q)))
+
+(defn seconds [v] (->Quantity v :time))
+(defn to-seconds [^Quantity q] (assert-unit-type q :time) (:value q))
+
+(defn minutes [v] (->Quantity (u/minutes->seconds v) :time))
+(defn to-minutes [^Quantity q] (assert-unit-type q :time) (u/seconds->minutes (:value q)))
+
+(defn hours [v] (->Quantity (u/hours->seconds v) :time))
+(defn to-hours [^Quantity q] (assert-unit-type q :time) (u/seconds->hours (:value q)))
+
+(defn unitless [v] (->Quantity v :unitless))
+(defn to-number [^Quantity q] (assert-unit-type q :unitless) (:value q))
 
 (defmethod qm/+ [Quantity Quantity]
   [^Quantity a ^Quantity b]
-  (assert-unit-match a b)
-  (Quantity. (:type a) (+ (:value a) (:value b)) (:unit a)))
+  (assert-unit-type-match a b)
+  (Quantity. (+ (:value a) (:value b)) (:unit-type a)))
 
 (defmethod qm/- [Quantity Quantity]
   [^Quantity a ^Quantity b]
-  (assert-unit-match a b)
-  (Quantity. (:type a) (- (:value a) (:value b)) (:unit a)))
+  (assert-unit-type-match a b)
+  (Quantity. (- (:value a) (:value b)) (:unit-type a)))
 
 (defmethod qm/* [Quantity Quantity]
   [^Quantity a ^Quantity b]
-  (assert-unit-match a b :match-exponent false)
-  (let [^Unit unit-a (:unit a)
-        ^Unit unit-b (:unit b)]
-    (Quantity. (:type a) (* (:value a) (:value b))
-               (->Unit (:unit unit-a) (+ (:exponent unit-a) (:exponent unit-b))))))
+  (if-let [new-unit-type (get-in u/unit [:multiplications [(:unit-type a) (:unit-type b)]])]
+    (Quantity. (* (:value a) (:value b)) new-unit-type)
+    (throw (ex-info "Multiplying two Quantities must result in a known unit-type" {:a a :b b}))))
 
 (defmethod qm/* [#?(:clj java.lang.Number :cljs js/Number) Quantity]
   [a ^Quantity b]
-  (Quantity. (:type b) (* a (:value b)) (:unit b)))
+  (Quantity. (* a (:value b)) (:unit-type b)))
 
 (defmethod qm/* [Quantity #?(:clj java.lang.Number :cljs js/Number)]
   [^Quantity a b]
-  (Quantity. (:type a) (* (:value a) b) (:unit a)))
+  (Quantity. (* (:value a) b) (:unit-type a)))
 
 (defmethod qm// [Quantity Quantity]
   [^Quantity a ^Quantity b]
-  (assert-unit-match a b :match-exponent false)
-  (let [^Unit unit-a (:unit a)
-        ^Unit unit-b (:unit b)]
-    (Quantity. (:type a) (/ (:value a) (:value b))
-               (->Unit (:unit unit-a) (- (:exponent unit-a) (:exponent unit-b))))))
+  (if-let [new-unit-type (get-in u/unit [:divisions [(:unit-type a) (:unit-type b)]])]
+    (Quantity. (/ (:value a) (:value b)) new-unit-type)
+    (throw (ex-info "Multiplying two Quantities must result in a known unit-type" {:a a :b b}))))
 
-(defmethod qm// [#?(:clj java.lang.Number :cljs js/Number) Quantity]
-  [a ^Quantity b]
-  (Quantity. (:type b) (/ a (:value b)) (:unit b)))
+#_(defmethod qm// [#?(:clj java.lang.Number :cljs js/Number) Quantity]
+    [a ^Quantity b]
+    (Quantity. (:type b) (/ a (:value b)) (:unit b)))
 
 (defmethod qm// [Quantity #?(:clj java.lang.Number :cljs js/Number)]
   [^Quantity a b]
-  (Quantity. (:type a) (/ (:value a) b) (:unit a)))
+  (Quantity. (/ (:value a) b) (:unit-type a)))
 
 (defmethod qm/abs Quantity
   [^Quantity a]
-  (Quantity. (:type a) (qm/abs (:value a)) (:unit a)))
+  (Quantity. (qm/abs (:value a)) (:unit-type a)))
 
-(defmethod qm/round Quantity
-  [^Quantity a]
-  (Quantity. (:type a) (qm/round (:value a)) (:unit a)))
+#_(defmethod qm/round Quantity
+    [^Quantity a]
+    (Quantity. (qm/round (:value a)) (:unit-type a)))
 
 ;; ;; (defmethod gm/ceil Quantity
 ;; ;;   [^Quantity a]
@@ -150,71 +181,71 @@
 
 (defmethod qm/> [Quantity Quantity]
   [^Quantity a ^Quantity b]
-  (assert-unit-match a b)
+  (assert-unit-type-match a b)
   (qm/> (:value a) (:value b)))
 
 (defmethod qm/< [Quantity Quantity]
   [^Quantity a ^Quantity b]
-  (assert-unit-match a b)
+  (assert-unit-type-match a b)
   (qm/< (:value a) (:value b)))
 
 (defmethod qm/>= [Quantity Quantity]
   [^Quantity a ^Quantity b]
-  (assert-unit-match a b)
+  (assert-unit-type-match a b)
   (qm/>= (:value a) (:value b)))
 
 (defmethod qm/<= [Quantity Quantity]
   [^Quantity a ^Quantity b]
-  (assert-unit-match a b)
+  (assert-unit-type-match a b)
   (qm/<= (:value a) (:value b)))
 
 
 ;;; Private
 
-(def ^:private quantity-prefixes
-  {:yotta 1E24
-   :zetta 1E21
-   :exa   1E18
-   :peta  1E15
-   :tera  1E12
-   :giga  1E9
-   :mega  1E6
-   :kilo  1E3
-   :hecto 1E2
-   :deca  1E1
-   :deka  1E1
+#_(def ^:private quantity-prefixes
+    {:yotta 1E24
+     :zetta 1E21
+     :exa   1E18
+     :peta  1E15
+     :tera  1E12
+     :giga  1E9
+     :mega  1E6
+     :kilo  1E3
+     :hecto 1E2
+     :deca  1E1
+     :deka  1E1
 
-   :deci  1E-1
-   :centi 1E-2
-   :milli 1E-3
-   :micro 1E-6
-   :nano  1E-9
-   :pico  1E-12
-   :femto 1E-15
-   :atto  1E-18
-   :zepto 1E-21
-   :yocto 1E-24
+     :deci  1E-1
+     :centi 1E-2
+     :milli 1E-3
+     :micro 1E-6
+     :nano  1E-9
+     :pico  1E-12
+     :femto 1E-15
+     :atto  1E-18
+     :zepto 1E-21
+     :yocto 1E-24
 
-   :kibi 2E10
-   :mebi 2E20
-   :gibi 2E30
-   :tebi 2E40
-   :pebi 2E50
-   :exbi 2E60})
+     :kibi 2E10
+     :mebi 2E20
+     :gibi 2E30
+     :tebi 2E40
+     :pebi 2E50
+     :exbi 2E60})
 
-(defn- prefix?
-  [p]
-  (boolean (get quantity-prefixes p)))
+#_(defn- prefix?
+    [p]
+    (boolean (get quantity-prefixes p)))
 
-(defn- parse-unit
-  [u]
-  (cond
-    (keyword? u) (->Unit u)
-    (= 2 (count u)) (if (prefix? (first u))
-                      (->Unit (first u) (second u) 1)
-                      (->Unit (first u) (second u)))
-    (= 3 (count u)) (apply ->Unit u)))
+#_(defn- parse-unit
+    [u]
+    (cond
+      (keyword? u) (->Unit u)
+      (= 2 (count u)) (if (prefix? (first u))
+                        (->Unit (first u) (second u) 1)
+                        (->Unit (first u) (second u)))
+      (= 3 (count u)) (apply ->Unit u)))
 
 (defn- parse-quantity
-  [type [value unit]]
-  (->Quantity type value (parse-unit unit)))
+  [unit-type [value]]
+  (->Quantity value unit-type))
