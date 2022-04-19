@@ -9,9 +9,11 @@
 
 (ns quantus.core
   (:require [quantus.math :as qm]
+            [quantus.angles :as qa]
             [quantus.units :as u]
             [utilis.fn :refer [apply-kw]]
-            [clojure.string :as st]))
+            [clojure.string :as st]
+            [clojure.math :as cm]))
 
 ;; (defrecord Unit [prefix unit exponent]
 ;;   Object
@@ -61,6 +63,11 @@
   [^Quantity a ^Quantity b]
   (when-not (unit-type-match? a b)
     (throw (ex-info "Quantities must have the same unit type." {:a a :b b}))))
+
+#_(defn assert-unit-type
+    [^Quantity a ^clojure.lang.Keyword unit-type]
+    (when-not (= (:unit-type a) unit-type)
+      (throw (ex-info (str "Quantity must have the correct unit type: " (name unit-type)) {:a a :unit-type unit-type}))))
 
 (defn assert-unit-type
   [^Quantity a unit-type]
@@ -124,19 +131,19 @@
   [^Quantity a b]
   (Quantity. (* (:value a) b) (:unit-type a)))
 
-(defmethod qm// [Quantity Quantity]
+(defmethod qm/divide [Quantity Quantity]
   [^Quantity a ^Quantity b]
   (if-let [new-unit-type (get-in u/unit [:divisions [(:unit-type a) (:unit-type b)]])]
-    (Quantity. (/ (:value a) (:value b)) new-unit-type)
+    (Quantity. (qm/divide (:value a) (:value b)) new-unit-type)
     (throw (ex-info "Multiplying two Quantities must result in a known unit-type" {:a a :b b}))))
 
 #_(defmethod qm// [#?(:clj java.lang.Number :cljs js/Number) Quantity]
     [a ^Quantity b]
     (Quantity. (:type b) (/ a (:value b)) (:unit b)))
 
-(defmethod qm// [Quantity #?(:clj java.lang.Number :cljs js/Number)]
+(defmethod qm/divide [Quantity #?(:clj java.lang.Number :cljs js/Number)]
   [^Quantity a b]
-  (Quantity. (/ (:value a) b) (:unit-type a)))
+  (Quantity. (qm/divide (:value a) b) (:unit-type a)))
 
 (defmethod qm/abs Quantity
   [^Quantity a]
@@ -199,6 +206,10 @@
   (assert-unit-type-match a b)
   (qm/<= (:value a) (:value b)))
 
+(defmethod qm/atan2 [Quantity Quantity]
+  [^Quantity y ^Quantity x]
+  (assert-unit-type-match y x)
+  (qa/->AngleQuantity (qm/atan2 (:value y) (:value x))))
 
 ;;; Private
 

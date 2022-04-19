@@ -9,7 +9,8 @@
 
 (ns quantus.angles
   (:require [quantus.math :as qm]
-            #_[clojure.math :as clj-math])
+            [clojure.core :as core]
+            #?(:clj [clojure.math]))
   ;;#?(:clj (:import [quantus.core Quantity]))
   (:refer-clojure :exclude [+ -]))
 
@@ -17,26 +18,46 @@
 (def two-pi (* 2 pi))
 (def three-pi (* 3 pi))
 
-;; (defn ->rad
-;;   [^Quantity d]
-;;   (cond-> d
-;;     (= :deg (:unit ^Unit (:unit d)))
-;;     (#(->Quantity :angle (/ (* (:value %) pi) 180) (->Unit :rad 1)))))
+(def radians-per-degree (/ pi 180))
+(defn degrees->radians [degrees] (* degrees radians-per-degree))
+(defn radians->degrees [radians] (/ radians radians-per-degree))
 
-;; (defn ->deg
-;;   [^Quantity r]
-;;   (cond-> r
-;;     (= :rad (:unit ^Unit (:unit r)))
-;;     (#(->Quantity :angle (/ (* (:value %) 180) pi) (->Unit :deg 1)))))
+(defrecord AngleQuantity [value]
+  Object
+  (toString [^AngleQuantity this]
+    (str "#quantity/angle [" value "]")))
+
+(defn assert-angle-quantity
+  [aq]
+  (when-not (instance? AngleQuantity aq)
+    (throw (ex-info "Angle Quantity expected" {:aq aq}))))
+
+(defn degrees [v] (->AngleQuantity (mod (degrees->radians v) two-pi)))
+(defn to-degrees [^AngleQuantity aq] (assert-angle-quantity aq) (radians->degrees (:value aq)))
+
+(defn radians [v] (->AngleQuantity (mod v two-pi)))
+(defn to-radians [^AngleQuantity aq] (assert-angle-quantity aq) (:value aq))
 
 (defn -
   "Shortest angular distance between `a` and `b`"
-  [a b]
-  (-> (clojure.core/- a b) (mod two-pi) (clojure.core/+ three-pi) (mod two-pi) (clojure.core/- pi)))
+  ([a] (core/- a))
+  ([a b] (-> (core/- a b)
+             (mod two-pi)
+             (core/+ three-pi)
+             (mod two-pi)
+             (core/- pi))))
+
+(defmethod qm/- [AngleQuantity AngleQuantity]
+  [^AngleQuantity a ^AngleQuantity b]
+  (- a b))
 
 (defn +
   [a b]
-  (mod (clojure.core/+ a b) two-pi))
+  (mod (core/+ a b) two-pi))
+
+(defmethod qm/+ [AngleQuantity AngleQuantity]
+  [^AngleQuantity a ^AngleQuantity b]
+  (+ a b))
 
 #_(defn add-degrees
     ([degrees other-degrees] (add-degrees degrees other-degrees :clockwise))
@@ -70,24 +91,22 @@
         left
         (- right))))
 
-(defrecord AngleQuantity [value]
-  Object
-  (toString [^AngleQuantity this]
-    (str "#quantiy/angle [" value "]")))
-
-(defn assert-angle-quantity
-  [aq]
-  (when-not (instance? AngleQuantity aq)
-    (throw (ex-info "Angle Quantity expected" {:aq aq}))))
-
-(defn degrees [v] (->AngleQuantity (clj-math/to-radians v)))
-(defn to-degrees [^AngleQuantity aq] (assert (instance? AngleQuantity aq)) (clj-math/to-degrees (:value aq)))
-
-(defn radians [v] (->AngleQuantity v))
-(defn to-radians [^AngleQuantity aq] (assert (instance? AngleQuantity aq)) (:value aq))
-
 (defmethod qm/+ [AngleQuantity AngleQuantity]
   [^AngleQuantity a ^AngleQuantity b]
-  (assert-angle-quantity a)
-  (assert-angle-quantity b)
   (AngleQuantity. (+ (:value a) (:value b))))
+
+(defmethod qm/- [AngleQuantity AngleQuantity]
+  [^AngleQuantity a ^AngleQuantity b]
+  (AngleQuantity. (- (:value a) (:value b))))
+
+(defmethod qm/sin AngleQuantity
+  [^AngleQuantity a]
+  (qm/sin (:value a)))
+
+(defmethod qm/cos AngleQuantity
+  [^AngleQuantity a]
+  (qm/cos (:value a)))
+
+(defmethod qm/tan AngleQuantity
+  [^AngleQuantity a]
+  (qm/tan (:value a)))
