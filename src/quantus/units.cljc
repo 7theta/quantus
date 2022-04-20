@@ -28,40 +28,12 @@
 ;; (defn kn->fpm [kn] (* kn kn-per-fpm))
 ;; (defn fpm->kn [fpm] (/ fpm kn-per-fpm))
 
-(defn- multiplication
-  [combos new-combo unit-1 unit-2]
-  (-> combos
-      (update :types conj new-combo unit-1 unit-2)
-      (update :multiplications assoc [unit-1 unit-2] new-combo)
-      (update :multiplications assoc [unit-2 unit-1] new-combo)
-      (update :divisions assoc [new-combo unit-1] unit-2)
-      (update :divisions assoc [new-combo unit-2] unit-1)))
-
-(defn- division
-  [combos new-combo numerator-unit denominator-unit]
-  (-> combos
-      (update :types conj new-combo numerator-unit denominator-unit)
-      (update :divisions assoc [numerator-unit denominator-unit] new-combo)
-      (update :divisions assoc [numerator-unit new-combo] denominator-unit)
-      (update :multiplications assoc [new-combo denominator-unit] numerator-unit)
-      (update :multiplications assoc [denominator-unit new-combo] numerator-unit)))
-
-(def ^:private reserved-types #{:angle})
-
-(def unit
-  (-> {:multiplications {} :divisions {} :types #{}}
-      (multiplication :area :length :length)
-      (division :speed :length :time)
-      (division :acceleration :speed :time)
-      ((fn add-unitless-operations
-         [{:keys [types] :as u}]
-         (reduce (fn [uu t]
-                   (multiplication uu t t :unitless))
-                 u
-                 types)))
-      (division :frequency :unitless :time)
-      ((fn check-for-reserved-unit-types
-         [{:keys [types] :as u}]
-         (when-let [used-reserved-types (seq (clojure.set/intersection types reserved-types))]
-           (throw (ex-info "A reserved type was used." {:used-reserved-types used-reserved-types})))
-         u))))
+(def kelvin-per-rankine (/ 5.0 9.0))
+(def celsius-kelvin-offset 273.15)
+(def fahrenheit-rankine-offset 459.67)
+(defn celsius->kelvin [celsius] (+ celsius celsius-kelvin-offset))
+(defn kelvin->celsius [kelvin] (- kelvin celsius-kelvin-offset))
+(defn fahrenheit->kelvin [fahrenheit] (* (+ fahrenheit fahrenheit-rankine-offset) kelvin-per-rankine))
+(defn kelvin->fahrenheit [kelvin] (- (/ kelvin kelvin-per-rankine) fahrenheit-rankine-offset))
+(defn rankine->kelvin [rankine] (* rankine kelvin-per-rankine))
+(defn kelvin->rankine [kelvin] (/ kelvin kelvin-per-rankine))

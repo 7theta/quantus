@@ -9,9 +9,7 @@
 
 (ns quantus.angles
   (:require [quantus.math :as qm]
-            [clojure.core :as core]
-            #?(:clj [clojure.math]))
-  ;;#?(:clj (:import [quantus.core Quantity]))
+            [clojure.core :as core])
   (:refer-clojure :exclude [+ -]))
 
 (def pi #?(:clj java.lang.Math/PI :cljs js/Math.PI))
@@ -25,7 +23,16 @@
 (defrecord AngleQuantity [value]
   Object
   (toString [^AngleQuantity this]
-    (str "#quantity/angle [" value "]")))
+    (str "#quantity/angle " value )))
+
+#?(:clj (defmethod print-method AngleQuantity [^AngleQuantity q ^java.io.Writer w]
+          (.write w (.toString q))))
+
+#?(:clj (. clojure.pprint/simple-dispatch addMethod AngleQuantity #(print-method % *out*)))
+
+(defn parse-angle
+  [value]
+  (->AngleQuantity value))
 
 (defn assert-angle-quantity
   [aq]

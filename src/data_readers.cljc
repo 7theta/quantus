@@ -9,7 +9,8 @@
 
 {quantity/time        quantus.core/parse-time
  quantity/length      quantus.core/parse-length
- quantity/angle       quantus.core/parse-angle
+ quantity/angle       quantus.angles/parse-angle
  quantity/mass        quantus.core/parse-mass
  quantity/speed       quantus.core/parse-speed
- quantity/temperature quantus.core/parse-temperature}
+ quantity/temperature quantus.core/parse-temperature
+ quantity/unitless    quantus.core/parse-unitless}
