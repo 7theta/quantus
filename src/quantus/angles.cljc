@@ -9,7 +9,8 @@
 
 (ns quantus.angles
   (:require [quantus.math :as qm]
-            [clojure.core :as core])
+            [clojure.core :as core]
+            [clojure.pprint])
   (:refer-clojure :exclude [+ -]))
 
 (def pi #?(:clj java.lang.Math/PI :cljs js/Math.PI))

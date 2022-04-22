@@ -13,7 +13,8 @@
             [quantus.units :as u]
             [utilis.fn :refer [apply-kw]]
             [clojure.string :as st]
-            [clojure.set]))
+            [clojure.set]
+            [clojure.pprint]))
 
 (declare allowed-operations)
 
@@ -23,13 +24,13 @@
     (str "#quantity/" (name unit-type) " " value)))
 
 #?(:clj (defmethod print-method Quantity [^Quantity q ^java.io.Writer w]
-          (.write w (.toString q))))
+          (.write w (.toString q)))
+   :cljs (extend-protocol IPrintWithWriter
+           quantus.core.Quantity
+           (-pr-writer [obj writer _]
+             (write-all writer "#quantity/" (name (:unit-type obj)) " " (:value obj)))))
 
 #?(:clj (. clojure.pprint/simple-dispatch addMethod Quantity #(print-method % *out*)))
-
-(defn ->Quantity
-  [value unit-type]
-  (Quantity. value unit-type))
 
 (defn parse-time [q] (->Quantity q :time))
 (defn parse-length [q] (->Quantity q :length))
