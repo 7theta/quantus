@@ -12,8 +12,7 @@
   (:refer-clojure :exclude [+ - * / = not= < > <= >= zero? pos? neg? min max #?(:clj abs :cljs divide)])
   #?(:import [java.lang Number]))
 
-#_(declare arity-dispatch)
-(defn arity-dispatch
+(defn- arity-dispatch
   ([] ::nulary)
   ([x] (type x)) ; unary
   ([x y] [(type x) (type y)]) ; binary

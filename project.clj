@@ -14,9 +14,6 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[com.7theta/utilis "1.16.0"]]
   :profiles {:dev {:global-vars {*warn-on-reflection* true}
-                   :plugins [;;[lein-cljsbuild "1.1.7"]
-                             ;;[lein-doo "0.1.7"]
-                             ]
                    :dependencies [[org.clojure/clojure "1.11.1"]
                                   [org.clojure/clojurescript "1.11.4"]
                                   [org.clojure/tools.namespace "1.2.0"]
@@ -25,10 +22,5 @@
                                   [thheller/shadow-cljs "2.18.0"]]
                    :source-paths ["dev" "example/src"]}}
   :clean-targets ^{:protect false} ["out" "target"]
-  #_#_:cljsbuild {:builds [{:id "test"
-                            :source-paths ["src" "test"]
-                            :compiler {:output-to "out/testable.js"
-                                       :main quantus.test-runner
-                                       :optimizations :advanced}}]}
   :scm {:name "git"
         :url "https://github.com/7theta/quantus"})
