@@ -41,10 +41,10 @@
     (throw (ex-info "Angle Quantity expected" {:aq aq}))))
 
 (defn degrees [v] (->AngleQuantity (mod (degrees->radians v) two-pi)))
-(defn to-degrees [^AngleQuantity aq] (assert-angle-quantity aq) (radians->degrees (:value aq)))
+(defn ->degrees [^AngleQuantity aq] (assert-angle-quantity aq) (radians->degrees (:value aq)))
 
 (defn radians [v] (->AngleQuantity (mod v two-pi)))
-(defn to-radians [^AngleQuantity aq] (assert-angle-quantity aq) (:value aq))
+(defn ->radians [^AngleQuantity aq] (assert-angle-quantity aq) (:value aq))
 
 (defn -
   "Shortest angular distance between `a` and `b`"

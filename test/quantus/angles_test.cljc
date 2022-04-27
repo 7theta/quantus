@@ -12,8 +12,8 @@
   #?(:clj (:import [java.io ByteArrayInputStream ByteArrayOutputStream])))
 
 (def units-list
-  [[sut/degrees sut/to-degrees]
-   [sut/radians sut/to-radians]])
+  [[sut/degrees sut/->degrees]
+   [sut/radians sut/->radians]])
 
 (deftest angles-test
   (let [double-features {:NaN? false :min 1E-5 :max 3.14}]
@@ -21,8 +21,8 @@
      "Single and dual angle operations: "
      [d1 (gen/double* double-features)
       d2 (gen/double* double-features)]
-     (doseq [[unit-a to-unit-a] units-list]
-       (is (approx= d1 (to-unit-a (unit-a d1))) "Unit values should make it in and out of a Quantity.")
+     (doseq [[unit-a ->unit-a] units-list]
+       (is (approx= d1 (->unit-a (unit-a d1))) "Unit values should make it in and out of a Quantity.")
 
        #?(:clj (is (= (unit-a d1) (read-string (pr-str (unit-a d1)))) "Quantities should be converted to string and back."))
        (testing "Quantities should be converted to transit and back."
@@ -42,18 +42,18 @@
               (let [encoded-transit-data (transit/write (transit/writer :json write-handlers) uad)
                     data (transit/read (transit/reader :json read-handlers) encoded-transit-data)]
                 (is (= uad data))))))
-       (doseq [[unit-b to-unit-b] units-list]
+       (doseq [[unit-b ->unit-b] units-list]
          (testing "Angle Quantities should work together."
            (is (approx= d1 (-> d1
                                unit-a
-                               to-unit-b
+                               ->unit-b
                                unit-b
-                               to-unit-a)))
+                               ->unit-a)))
            (is (approx= d1 (-> d1
                                unit-b
-                               to-unit-a
+                               ->unit-a
                                unit-a
-                               to-unit-b)))
+                               ->unit-b)))
            (let [d1h (/ d1 2)
                  d2h (/ d2 2)
                  ua1 (unit-a d1h)
@@ -61,9 +61,9 @@
                  ua2 (unit-a d2h)
                  ub2 (unit-b d2h)
                  a180 (sut/degrees 180)]
-             (is (approx= (+ d1h d2h) (to-unit-a (qm/+ ua1 ua2)) 1E-4))
-             (is (approx= (+ d1h d2h) (to-unit-b (qm/+ ub1 ub2)) 1E-4))
-             (is (approx= (+ d1h d2h) (to-unit-b (qm/+ ub1 a180 ub2 a180)) 1E-4))))
+             (is (approx= (+ d1h d2h) (->unit-a (qm/+ ua1 ua2)) 1E-4))
+             (is (approx= (+ d1h d2h) (->unit-b (qm/+ ub1 ub2)) 1E-4))
+             (is (approx= (+ d1h d2h) (->unit-b (qm/+ ub1 a180 ub2 a180)) 1E-4))))
          #_(checking "Two quantities may be multiplied or divided"
                      [d1 (gen/double* double-features)
                       d2 (gen/double* double-features)]

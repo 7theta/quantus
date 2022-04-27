@@ -12,21 +12,21 @@
             [quantus.angles :as qa])
   #?(:clj (:import [java.io ByteArrayInputStream ByteArrayOutputStream])))
 
-(def units-list [[sut/meters sut/to-meters]
-                 [sut/feet sut/to-feet]
-                 [sut/mps sut/to-mps]
-                 [sut/kn sut/to-kn]
-                 [sut/fpm sut/to-fpm]
-                 [sut/kg sut/to-kg]
-                 [sut/lb sut/to-lb]
-                 [sut/seconds sut/to-seconds]
-                 [sut/minutes sut/to-minutes]
-                 [sut/hours sut/to-hours]
-                 [sut/kelvin sut/to-kelvin]
-                 [sut/rankine sut/to-rankine]
-                 [sut/celsius sut/to-celsius]
-                 [sut/fahrenheit sut/to-fahrenheit]
-                 [sut/unitless sut/to-unitless]])
+(def units-list [[sut/meters sut/->meters]
+                 [sut/feet sut/->feet]
+                 [sut/meters-per-second sut/->meters-per-second]
+                 [sut/knots sut/->knots]
+                 [sut/feet-per-minute sut/->feet-per-minute]
+                 [sut/kilograms sut/->kilograms]
+                 [sut/pounds sut/->pounds]
+                 [sut/seconds sut/->seconds]
+                 [sut/minutes sut/->minutes]
+                 [sut/hours sut/->hours]
+                 [sut/kelvin sut/->kelvin]
+                 [sut/rankine sut/->rankine]
+                 [sut/celsius sut/->celsius]
+                 [sut/fahrenheit sut/->fahrenheit]
+                 [sut/unitless sut/->unitless]])
 
 (defn approx=
   ([x y]
@@ -42,8 +42,8 @@
      "Single and dual unit operations: "
      [d1 (gen/double* double-features)
       d2 (gen/double* double-features)]
-     (doseq [[unit-a to-unit-a] units-list]
-       (is (approx= d1 (to-unit-a (unit-a d1))) "Unit values should make it in and out of a Quantity.")
+     (doseq [[unit-a ->unit-a] units-list]
+       (is (approx= d1 (->unit-a (unit-a d1))) "Unit values should make it in and out of a Quantity.")
        #?(:clj (is (= (unit-a d1) (read-string (pr-str (unit-a d1)))) "Quantities should be converted to string and back."))
        (let [write-handlers {:handlers (:write quantus.transit/handlers)}
              read-handlers {:handlers (:read quantus.transit/handlers)}
@@ -62,31 +62,31 @@
               (is (= uad data) "Quantities should be converted to transit and back."))))
 
 
-       (doseq [[unit-b to-unit-b] units-list]
+       (doseq [[unit-b ->unit-b] units-list]
          (let [qa (unit-a 1)
                qb (unit-b 1)]
            (if (sut/unit-type-match? qa qb)
              (testing "Two quantities with matching unit-types should work together."
                (is (approx= d1 (-> d1
                                    unit-a
-                                   to-unit-b
+                                   ->unit-b
                                    unit-b
-                                   to-unit-a)))
+                                   ->unit-a)))
                (is (approx= d1 (-> d1
                                    unit-b
-                                   to-unit-a
+                                   ->unit-a
                                    unit-a
-                                   to-unit-b)))
+                                   ->unit-b)))
                (when-not (or (#{sut/celsius sut/fahrenheit} unit-a)
                              (#{sut/celsius sut/fahrenheit} unit-b))
                  (let [ua1 (unit-a d1)
                        ub1 (unit-b d1)
                        ua2 (unit-a d2)
                        ub2 (unit-b d2)]
-                   (is (approx= (+ d1 d2) (to-unit-a (qm/+ ua1 ua2))))
-                   (is (approx= (+ d1 d2) (to-unit-b (qm/+ ub1 ub2))))
-                   (is (to-unit-a (qm/+ ua1 ub1 ua2 ub2)))
-                   (is (to-unit-b (qm/+ ua1 ub1 ua2 ub2))))))
+                   (is (approx= (+ d1 d2) (->unit-a (qm/+ ua1 ua2))))
+                   (is (approx= (+ d1 d2) (->unit-b (qm/+ ub1 ub2))))
+                   (is (->unit-a (qm/+ ua1 ub1 ua2 ub2)))
+                   (is (->unit-b (qm/+ ua1 ub1 ua2 ub2))))))
              (testing "Two quantities with different unit-types shouldn't work together."
                (is (thrown-with-msg? #?(:clj Exception :cljs js/Error)
                                      #"Quantities must have the same unit type."
@@ -118,5 +118,5 @@
 
 (deftest temperatures
   (testing "Basic temperature conversions"
-    (is (approx= 273.15 (sut/to-kelvin (sut/fahrenheit 32))))
-    (is (approx= -273.15 (sut/to-celsius (sut/rankine 0))))))
+    (is (approx= 273.15 (sut/->kelvin (sut/fahrenheit 32))))
+    (is (approx= -273.15 (sut/->celsius (sut/rankine 0))))))

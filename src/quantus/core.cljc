@@ -54,49 +54,49 @@
     (throw (ex-info "The provided quantity is not compatible with the target unit type." {:quantity a :expected-unit-type unit-type}))))
 
 (defn meters [v] (->Quantity v :length))
-(defn to-meters [^Quantity q] (assert-unit-type q :length) (:value q))
+(defn ->meters [^Quantity q] (assert-unit-type q :length) (:value q))
 
 (defn feet [v] (->Quantity (u/feet->meters v) :length))
-(defn to-feet [^Quantity q] (assert-unit-type q :length) (u/meters->feet (:value q)))
+(defn ->feet [^Quantity q] (assert-unit-type q :length) (u/meters->feet (:value q)))
 
-(defn mps [v] (->Quantity v :speed))
-(defn to-mps [^Quantity q] (assert-unit-type q :speed) (:value q))
+(defn meters-per-second [v] (->Quantity v :speed))
+(defn ->meters-per-second [^Quantity q] (assert-unit-type q :speed) (:value q))
 
-(defn kn [v] (->Quantity (u/kn->mps v) :speed))
-(defn to-kn [^Quantity q] (assert-unit-type q :speed) (u/mps->kn (:value q)))
+(defn knots [v] (->Quantity (u/knots->meters-per-second v) :speed))
+(defn ->knots [^Quantity q] (assert-unit-type q :speed) (u/meters-per-second->knots (:value q)))
 
-(defn fpm [v] (->Quantity (u/fpm->mps v) :speed))
-(defn to-fpm [^Quantity q] (assert-unit-type q :speed) (u/mps->fpm (:value q)))
+(defn feet-per-minute [v] (->Quantity (u/feet-per-minute->meters-per-second v) :speed))
+(defn ->feet-per-minute [^Quantity q] (assert-unit-type q :speed) (u/meters-per-second->feet-per-minute (:value q)))
 
-(defn kg [v] (->Quantity v :mass))
-(defn to-kg [^Quantity q] (assert-unit-type q :mass) (:value q))
+(defn kilograms [v] (->Quantity v :mass))
+(defn ->kilograms [^Quantity q] (assert-unit-type q :mass) (:value q))
 
-(defn lb [v] (->Quantity (u/lb->kg v) :mass))
-(defn to-lb [^Quantity q] (assert-unit-type q :mass) (u/kg->lb (:value q)))
+(defn pounds [v] (->Quantity (u/pounds->kilograms v) :mass))
+(defn ->pounds [^Quantity q] (assert-unit-type q :mass) (u/kilograms->pounds (:value q)))
 
 (defn seconds [v] (->Quantity v :time))
-(defn to-seconds [^Quantity q] (assert-unit-type q :time) (:value q))
+(defn ->seconds [^Quantity q] (assert-unit-type q :time) (:value q))
 
 (defn minutes [v] (->Quantity (u/minutes->seconds v) :time))
-(defn to-minutes [^Quantity q] (assert-unit-type q :time) (u/seconds->minutes (:value q)))
+(defn ->minutes [^Quantity q] (assert-unit-type q :time) (u/seconds->minutes (:value q)))
 
 (defn hours [v] (->Quantity (u/hours->seconds v) :time))
-(defn to-hours [^Quantity q] (assert-unit-type q :time) (u/seconds->hours (:value q)))
+(defn ->hours [^Quantity q] (assert-unit-type q :time) (u/seconds->hours (:value q)))
 
 (defn kelvin [v] (->Quantity v :temperature))
-(defn to-kelvin [^Quantity q] (assert-unit-type q :temperature) (:value q))
+(defn ->kelvin [^Quantity q] (assert-unit-type q :temperature) (:value q))
 
 (defn celsius [v] (->Quantity (u/celsius->kelvin v) :temperature))
-(defn to-celsius [^Quantity q] (assert-unit-type q :temperature) (u/kelvin->celsius (:value q)))
+(defn ->celsius [^Quantity q] (assert-unit-type q :temperature) (u/kelvin->celsius (:value q)))
 
 (defn rankine [v] (->Quantity (u/rankine->kelvin v) :temperature))
-(defn to-rankine [^Quantity q] (assert-unit-type q :temperature) (u/kelvin->rankine (:value q)))
+(defn ->rankine [^Quantity q] (assert-unit-type q :temperature) (u/kelvin->rankine (:value q)))
 
 (defn fahrenheit [v] (->Quantity (u/fahrenheit->kelvin v) :temperature))
-(defn to-fahrenheit [^Quantity q] (assert-unit-type q :temperature) (u/kelvin->fahrenheit (:value q)))
+(defn ->fahrenheit [^Quantity q] (assert-unit-type q :temperature) (u/kelvin->fahrenheit (:value q)))
 
 (defn unitless [v] (->Quantity v :unitless))
-(defn to-unitless [^Quantity q] (assert-unit-type q :unitless) (:value q))
+(defn ->unitless [^Quantity q] (assert-unit-type q :unitless) (:value q))
 
 (defmethod qm/+ [Quantity Quantity]
   [^Quantity a ^Quantity b]
