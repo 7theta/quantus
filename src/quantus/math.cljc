@@ -318,7 +318,7 @@
    :cljs (defmethod tan js/Number [x] (js/Math.tan x)))
 
 (defmulti atan2 (fn [y x] [(type y) (type x)]))
-#?(:clj (defmethod atan2 [Number Number] [y x] (clojure.math/atan2 x))
+#?(:clj (defmethod atan2 [Number Number] [y x] (clojure.math/atan2 y x))
    :cljs (defmethod atan2 [js/Number js/Number] [y x] (js/Math.atan2 y x)))
 
 
