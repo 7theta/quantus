@@ -10,6 +10,7 @@
             [cognitect.transit :as transit]
             #?(:cljs [cljs.reader :refer [read-string]])
             [quantus.angles :as qa])
+  (:refer-clojure :exclude [#?(:clj abs :cljs divide)])
   #?(:clj (:import [java.io ByteArrayInputStream ByteArrayOutputStream])))
 
 (def units-list [[sut/meters sut/->meters]
@@ -30,9 +31,6 @@
 
 (defn approx=
   ([x y]
-   #_(if (zero? x)
-       (< (abs y) 1E-50)
-       (< (/ (abs (- x y)) (+ x y)) 1E-5))
    (qm/approx= x y (+ (abs (* x 1E-5)) 1E-50)))
   ([x y e] (qm/approx= x y e)))
 
@@ -43,6 +41,7 @@
      [d1 (gen/double* double-features)
       d2 (gen/double* double-features)]
      (doseq [[unit-a ->unit-a] units-list]
+       (is (= (unit-a d1) (unit-a d1)) "Two instances with the same unit-type and value should be equal.")
        (is (approx= d1 (->unit-a (unit-a d1))) "Unit values should make it in and out of a Quantity.")
        #?(:clj (is (= (unit-a d1) (read-string (pr-str (unit-a d1)))) "Quantities should be converted to string and back."))
        (let [write-handlers {:handlers (:write quantus.transit/handlers)}
@@ -95,7 +94,7 @@
                                      #"Quantities must have the same unit type."
                                      (qm/- (unit-a d1) (unit-b d2))))))
            (if (contains? (:multiplications sut/allowed-operations)
-                          [(:unit-type qa) (:unit-type qb)])
+                          [(sut/get-unit-type qa) (sut/get-unit-type qb)])
              (testing "Two quantities that may be multiplied"
                (is (qm/* (unit-a d1) (unit-b d2)))
                (is (qm/* (unit-b d2) (unit-a d1))))
@@ -107,7 +106,7 @@
                                      #"Multiplying two Quantities must result in a known unit-type"
                                      (qm/* (unit-b d2) (unit-a d1))))))
            (if (contains? (:divisions sut/allowed-operations)
-                          [(:unit-type qa) (:unit-type qb)])
+                          [(sut/get-unit-type qa) (sut/get-unit-type qb)])
              (testing "Two quantities that may be divided"
                (when-not (zero? d2)
                  (is (qm// (unit-a d1) (unit-b d2)))))

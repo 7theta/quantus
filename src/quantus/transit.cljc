@@ -5,16 +5,16 @@
   #?(:clj (:import [quantus.core Quantity]
                    [quantus.angles AngleQuantity])))
 
-(def handlers {:read {"quantity/time"        (transit/read-handler quantus.core/parse-time)
-                      "quantity/length"      (transit/read-handler quantus.core/parse-length)
-                      "quantity/angle"       (transit/read-handler quantus.angles/parse-angle)
-                      "quantity/mass"        (transit/read-handler quantus.core/parse-mass)
-                      "quantity/speed"       (transit/read-handler quantus.core/parse-speed)
-                      "quantity/temperature" (transit/read-handler quantus.core/parse-temperature)
-                      "quantity/unitless"    (transit/read-handler quantus.core/parse-unitless)}
+(def handlers {:read {"quantity/time"        (transit/read-handler quantus.core/seconds)
+                      "quantity/length"      (transit/read-handler quantus.core/meters)
+                      "quantity/angle"       (transit/read-handler quantus.angles/radians)
+                      "quantity/mass"        (transit/read-handler quantus.core/kilograms)
+                      "quantity/speed"       (transit/read-handler quantus.core/meters-per-second)
+                      "quantity/temperature" (transit/read-handler quantus.core/kelvin)
+                      "quantity/unitless"    (transit/read-handler quantus.core/unitless)}
                :write {Quantity (transit/write-handler
-                                 (fn [q] (str "quantity/" (name (:unit-type q))))
-                                 (fn [q] (:value q)))
+                                 (fn [^Quantity q] (str "quantity/" (name (q/get-unit-type q))))
+                                 (fn [^Quantity q] (q/get-value q)))
                        AngleQuantity (transit/write-handler
                                       (constantly "quantity/angle")
-                                      (fn [q] (:value q)))}})
+                                      (fn [^AngleQuantity q] (q/get-value q)))}})

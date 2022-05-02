@@ -1,6 +1,6 @@
 (ns quantus.angles-test
   (:require [quantus.angles :as sut]
-            [quantus.math :refer [abs] :as qm]
+            [quantus.math :as qm]
             [quantus.core-test :refer [approx=]]
             [clojure.test.check.generators :as gen]
             [com.gfredericks.test.chuck :refer [times]]
@@ -8,7 +8,8 @@
             #?(:clj [clojure.test :refer [deftest is testing]]
                :cljs [cljs.test :refer-macros [deftest is testing] :include-macros true])
             [cognitect.transit :as transit]
-            #?(:cljs [cljs.reader :refer [read-string]]))
+            #?(:cljs [cljs.reader :refer [read-string]])
+            [clojure.core :as core])
   #?(:clj (:import [java.io ByteArrayInputStream ByteArrayOutputStream])))
 
 (def units-list
@@ -68,7 +69,7 @@
                      [d1 (gen/double* double-features)
                       d2 (gen/double* double-features)]
                      (if (contains? (:multiplications sut/allowed-operations)
-                                    [(:unit-type qa) (:unit-type qb)])
+                                    [(.unit-type qa) (.unit-type qb)])
                        (do (is (qm/* (unit-a d1) (unit-b d2)))
                            (is (qm/* (unit-b d2) (unit-a d1))))
                        (do (is (thrown-with-msg? #?(:clj Exception :cljs js/Error)
@@ -78,7 +79,7 @@
                                                  #"Multiplying two Quantities must result in a known unit-type"
                                                  (qm/* (unit-b d2) (unit-a d1))))))
                      (if (contains? (:divisions sut/allowed-operations)
-                                    [(:unit-type qa) (:unit-type qb)])
+                                    [(.unit-type qa) (.unit-type qb)])
                        (when-not (zero? d2)
                          (is (qm// (unit-a d1) (unit-b d2))))
                        (is (thrown-with-msg? #?(:clj Exception :cljs js/Error)
