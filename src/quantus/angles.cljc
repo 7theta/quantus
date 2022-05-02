@@ -78,46 +78,6 @@
   [^AngleQuantity a ^AngleQuantity b]
   (AngleQuantity. (+ (q/get-value a) (q/get-value b))))
 
-#_(defn add-degrees
-    ([degrees other-degrees] (add-degrees degrees other-degrees :clockwise))
-    ([degrees other-degrees cw-or-ccw]
-     (assert (#{:ccw :counter-clockwise :left :cw :clockwise :right} cw-or-ccw))
-     (let [other-degrees (if (#{:ccw :counter-clockwise :left} cw-or-ccw)
-                           (- other-degrees)
-                           other-degrees)]
-       (-> degrees
-           (+ other-degrees)
-           (mod 360)))))
-
-#_(defn calculate-turn
-    [dir-current dir-new left-or-right]
-    (assert (#{:left :right} left-or-right))
-    (let [turn (if (= :right left-or-right)
-                 (- dir-new dir-current)
-                 (- dir-current dir-new))]
-      (if (neg? turn)
-        (+ turn 360)
-        turn)))
-
-#_(defn subtract-degrees
-    ;;https://aviation.stackexchange.com/questions/47540/how-do-you-find-the-difference-in-degrees-between-two-headings
-    ;;LH turn: [origin hdg] - [destination hdg] (if less than 0, add 360)
-    ;;RH turn: [destination hdg] - [origin hdg] (if less than 0, add 360)
-    [degrees other-degrees]
-    (let [left (calculate-turn degrees other-degrees :left)
-          right (calculate-turn degrees other-degrees :right)]
-      (if (< left right)
-        left
-        (- right))))
-
-;; (defmethod qm/+ [AngleQuantity AngleQuantity]
-;;   [^AngleQuantity a ^AngleQuantity b]
-;;   (AngleQuantity. (+ (:value a) (:value b))))
-
-;; (defmethod qm/- [AngleQuantity AngleQuantity]
-;;   [^AngleQuantity a ^AngleQuantity b]
-;;   (AngleQuantity. (- (:value a) (:value b))))
-
 (defmethod qm/sin AngleQuantity
   [^AngleQuantity a]
   (qm/sin (:value a)))

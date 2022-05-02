@@ -64,24 +64,4 @@
                  a180 (sut/degrees 180)]
              (is (approx= (+ d1h d2h) (->unit-a (qm/+ ua1 ua2)) 1E-4))
              (is (approx= (+ d1h d2h) (->unit-b (qm/+ ub1 ub2)) 1E-4))
-             (is (approx= (+ d1h d2h) (->unit-b (qm/+ ub1 a180 ub2 a180)) 1E-4))))
-         #_(checking "Two quantities may be multiplied or divided"
-                     [d1 (gen/double* double-features)
-                      d2 (gen/double* double-features)]
-                     (if (contains? (:multiplications sut/allowed-operations)
-                                    [(.unit-type qa) (.unit-type qb)])
-                       (do (is (qm/* (unit-a d1) (unit-b d2)))
-                           (is (qm/* (unit-b d2) (unit-a d1))))
-                       (do (is (thrown-with-msg? #?(:clj Exception :cljs js/Error)
-                                                 #"Multiplying two Quantities must result in a known unit-type"
-                                                 (qm/* (unit-a d1) (unit-b d2))))
-                           (is (thrown-with-msg? #?(:clj Exception :cljs js/Error)
-                                                 #"Multiplying two Quantities must result in a known unit-type"
-                                                 (qm/* (unit-b d2) (unit-a d1))))))
-                     (if (contains? (:divisions sut/allowed-operations)
-                                    [(.unit-type qa) (.unit-type qb)])
-                       (when-not (zero? d2)
-                         (is (qm// (unit-a d1) (unit-b d2))))
-                       (is (thrown-with-msg? #?(:clj Exception :cljs js/Error)
-                                             #"Dividing two Quantities must result in a known unit-type"
-                                             (qm// (unit-a d1) (unit-b d2)))))))))))
+             (is (approx= (+ d1h d2h) (->unit-b (qm/+ ub1 a180 ub2 a180)) 1E-4)))))))))
