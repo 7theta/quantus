@@ -44,17 +44,17 @@
 
 (defn parse-angle
   [value]
-  (->AngleQuantity value))
+  (AngleQuantity. value))
 
 (defn assert-angle-quantity
   [aq]
   (when-not (instance? AngleQuantity aq)
     (throw (ex-info "Angle Quantity expected" {:aq aq}))))
 
-(defn degrees [v] (->AngleQuantity (mod (degrees->radians v) two-pi)))
+(defn degrees [v] (AngleQuantity. (mod (degrees->radians v) two-pi)))
 (defn ->degrees [^AngleQuantity aq] (assert-angle-quantity aq) (radians->degrees (q/get-value aq)))
 
-(defn radians [v] (->AngleQuantity (mod v two-pi)))
+(defn radians [v] (AngleQuantity. (mod v two-pi)))
 (defn ->radians [^AngleQuantity aq] (assert-angle-quantity aq) (q/get-value aq))
 
 (defn -
