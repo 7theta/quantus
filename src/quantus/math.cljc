@@ -8,10 +8,15 @@
 ;;   You must not remove this notice, or any others, from this software.
 
 (ns quantus.math
-  (:refer-clojure :exclude [+ - * / = not= < > <= >= zero? pos? neg? min max])
+  #?(:clj (:require [clojure.math]))
+  (:refer-clojure :exclude [+ - * / = not= < > <= >= zero? pos? neg? min max #?(:clj abs :cljs divide)])
   #?(:import [java.lang Number]))
 
-(declare arity-dispatch)
+(defn- arity-dispatch
+  ([] ::nulary)
+  ([x] (type x)) ; unary
+  ([x y] [(type x) (type y)]) ; binary
+  ([x y & more] ::nary))
 
 ;; Addition
 
@@ -70,28 +75,28 @@
 
 ;; Division
 
-(defmulti /
+(defmulti divide
   "Return the quotient of the first argument and the
   product of all other arguments"
   arity-dispatch)
 
-(defmethod / #?(:clj Number :cljs js/Number) [x] (clojure.core// x))
+(defmethod divide #?(:clj Number :cljs js/Number) [x] (clojure.core// x))
 
-(defmethod / [#?(:clj Number :cljs js/Number) #?(:clj Number :cljs js/Number)]
+(defmethod divide [#?(:clj Number :cljs js/Number) #?(:clj Number :cljs js/Number)]
   [x y]
   (clojure.core// x y))
 
-(defmethod / ::nary
+(defmethod divide ::nary
   [x y & more]
-  (reduce / (/ x y) more))
+  (reduce divide (divide x y) more))
 
 ;; Workaround for (defmulti / arity-dispatch) not working
-#_(defn /
-    "Return the quotient of the first argument and the
+(defn /
+  "Return the quotient of the first argument and the
   product of all other arguments. "
-    ([x] (divide x)) ; unary
-    ([x y] (divide x y)) ; binary
-    ([x y & more] (apply divide x y more)))
+  ([x] (divide x)) ; unary
+  ([x y] (divide x y)) ; binary
+  ([x y & more] (apply divide x y more)))
 
 ;; zero?
 
@@ -297,11 +302,24 @@
   ([x y & more]
    (reduce min (min x y) more)))
 
+;; Trig
+
+(defmulti sin type)
+#?(:clj (defmethod sin Number [x] (clojure.math/sin x))
+   :cljs (defmethod sin js/Number [x] (js/Math.sin x)))
+
+(defmulti cos type)
+#?(:clj (defmethod cos Number [x] (clojure.math/cos x))
+   :cljs (defmethod cos js/Number [x] (js/Math.cos x)))
+
+(defmulti tan type)
+#?(:clj (defmethod tan Number [x] (clojure.math/tan x))
+   :cljs (defmethod tan js/Number [x] (js/Math.tan x)))
+
+(defmulti atan2 (fn [y x] [(type y) (type x)]))
+#?(:clj (defmethod atan2 [Number Number] [y x] (clojure.math/atan2 y x))
+   :cljs (defmethod atan2 [js/Number js/Number] [y x] (js/Math.atan2 y x)))
+
+
 
 ;;; Private
-
-(defn- arity-dispatch
-  ([] ::nulary)
-  ([x] (type x)) ; unary
-  ([x y] [(type x) (type y)]) ; binary
-  ([x y & more] ::nary))

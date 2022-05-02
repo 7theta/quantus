@@ -7,9 +7,10 @@
 ;;   the terms of this license.
 ;;   You must not remove this notice, or any others, from this software.
 
-{quantity/time        quantus.core/parse-time
- quantity/length      quantus.core/parse-length
- quantity/angle       quantus.core/parse-angle
- quantity/mass        quantus.core/parse-mass
- quantity/speed       quantus.core/parse-speed
- quantity/temperature quantus.core/parse-temperature}
+{quantity/seconds     quantus.core/seconds
+ quantity/meters      quantus.core/meters
+ quantity/radians     quantus.angles/radians
+ quantity/kilograms   quantus.core/kilograms
+ quantity/meters-per-second       quantus.core/meters-per-second
+ quantity/kelvin      quantus.core/kelvin
+ quantity/unitless    quantus.core/unitless}
