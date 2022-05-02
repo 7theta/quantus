@@ -26,7 +26,7 @@
 (deftype AngleQuantity [value]
   Object
   (toString [^AngleQuantity this]
-    (str "#quantity/angle " value ))
+    (str "#quantity/radians " value ))
   #?(:cljs IEquiv)
   (#?(:clj equals :cljs -equiv) [self q]
     (or (identical? self q)

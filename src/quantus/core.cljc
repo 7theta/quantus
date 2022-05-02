@@ -15,26 +15,26 @@
             [clojure.set]
             [clojure.pprint]))
 
-(declare allowed-operations)
+(declare allowed-operations si-units)
 
 (defprotocol QuantityProtocol
   (get-unit-type [this])
   (get-value [this]))
 
-(deftype Quantity [v ^clojure.lang.Keyword ut]
+(deftype Quantity [value ^clojure.lang.Keyword unit-type]
   Object
   (toString [^Quantity this]
-    (str "#quantity/" (name ut) " " v))
+    (str "#quantity/" (si-units unit-type) " " value))
   #?(:cljs IEquiv)
   (#?(:clj equals :cljs -equiv) [self q]
     (or (identical? self q)
         (and (instance? Quantity q)
-             (= ut (get-unit-type q))
-             (= v (get-value q)))))
+             (= unit-type (get-unit-type q))
+             (= value (get-value q)))))
 
   QuantityProtocol
-  (get-unit-type [_] ut)
-  (get-value [_] v)
+  (get-unit-type [_] unit-type)
+  (get-value [_] value)
 
   ;; #?(:cljs
   ;;    IPrintWithWriter)
@@ -52,12 +52,12 @@
 
 #?(:clj (. clojure.pprint/simple-dispatch addMethod Quantity #(print-method % *out*)))
 
-(defn parse-time [q] (Quantity. q :time))
-(defn parse-length [q] (Quantity. q :length))
-(defn parse-mass [q] (Quantity. q :mass))
-(defn parse-speed [q] (Quantity. q :speed))
-(defn parse-temperature [q] (Quantity. q :temperature))
-(defn parse-unitless [q] (Quantity. q :unitless))
+;; (defn parse-time [q] (Quantity. q :time))
+;; (defn parse-length [q] (Quantity. q :length))
+;; (defn parse-mass [q] (Quantity. q :mass))
+;; (defn parse-speed [q] (Quantity. q :speed))
+;; (defn parse-temperature [q] (Quantity. q :temperature))
+;; (defn parse-unitless [q] (Quantity. q :unitless))
 
 (defn unit-type-match?
   [^Quantity a ^Quantity b]
@@ -239,3 +239,13 @@
          (when-let [used-reserved-types (seq (clojure.set/intersection types reserved-types))]
            (throw (ex-info "A reserved type was used." {:used-reserved-types used-reserved-types})))
          u))))
+
+(def si-units
+  {:length "meters"
+   :time "seconds"
+   :speed "meters-per-second"
+   :acceleration "meters-per-second-squared"
+   :area "meters-squared"
+   :unitless "unitless"
+   :mass "kilograms"
+   :temperature "kelvin"})
