@@ -94,7 +94,7 @@
                                      #"Quantities must have the same unit type."
                                      (qm/- (unit-a d1) (unit-b d2))))))
            (if (contains? (:multiplications sut/allowed-operations)
-                          [(sut/get-unit-type qa) (sut/get-unit-type qb)])
+                          [(sut/unit-type qa) (sut/unit-type qb)])
              (testing "Two quantities that may be multiplied"
                (is (qm/* (unit-a d1) (unit-b d2)))
                (is (qm/* (unit-b d2) (unit-a d1))))
@@ -106,7 +106,7 @@
                                      #"Multiplying two Quantities must result in a known unit-type"
                                      (qm/* (unit-b d2) (unit-a d1))))))
            (if (contains? (:divisions sut/allowed-operations)
-                          [(sut/get-unit-type qa) (sut/get-unit-type qb)])
+                          [(sut/unit-type qa) (sut/unit-type qb)])
              (testing "Two quantities that may be divided"
                (when-not (zero? d2)
                  (is (qm// (unit-a d1) (unit-b d2)))))

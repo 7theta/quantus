@@ -31,11 +31,11 @@
   (#?(:clj equals :cljs -equiv) [self q]
     (or (identical? self q)
         (and (instance? AngleQuantity q)
-             (= value (q/get-value q)))))
+             (= value (q/value q)))))
 
   q/QuantityProtocol
-  (get-unit-type [_] :angle)
-  (get-value [_] value))
+  (unit-type [_] :angle)
+  (value [_] value))
 
 #?(:clj (defmethod print-method AngleQuantity [^AngleQuantity q ^java.io.Writer w]
           (.write w (.toString q))))
@@ -52,10 +52,10 @@
     (throw (ex-info "Angle Quantity expected" {:aq aq}))))
 
 (defn degrees [v] (AngleQuantity. (mod (degrees->radians v) two-pi)))
-(defn ->degrees [^AngleQuantity aq] (assert-angle-quantity aq) (radians->degrees (q/get-value aq)))
+(defn ->degrees [^AngleQuantity aq] (assert-angle-quantity aq) (radians->degrees (q/value aq)))
 
 (defn radians [v] (AngleQuantity. (mod v two-pi)))
-(defn ->radians [^AngleQuantity aq] (assert-angle-quantity aq) (q/get-value aq))
+(defn ->radians [^AngleQuantity aq] (assert-angle-quantity aq) (q/value aq))
 
 (defn -
   "Shortest angular distance between `a` and `b`"
@@ -76,7 +76,7 @@
 
 (defmethod qm/+ [AngleQuantity AngleQuantity]
   [^AngleQuantity a ^AngleQuantity b]
-  (AngleQuantity. (+ (q/get-value a) (q/get-value b))))
+  (AngleQuantity. (+ (q/value a) (q/value b))))
 
 (defmethod qm/sin AngleQuantity
   [^AngleQuantity a]
@@ -93,4 +93,4 @@
 (defmethod qm/atan2 [Quantity Quantity]
   [^Quantity y ^Quantity x]
   (q/assert-unit-type-match y x)
-  (AngleQuantity. (qm/atan2 (q/get-value y) (q/get-value x))))
+  (AngleQuantity. (qm/atan2 (q/value y) (q/value x))))
