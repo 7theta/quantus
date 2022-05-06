@@ -15,11 +15,16 @@
 
 (def units-list [[sut/meters sut/->meters]
                  [sut/feet sut/->feet]
+                 [sut/centimeters sut/->centimeters]
+                 [sut/inches sut/->inches]
                  [sut/meters-per-second sut/->meters-per-second]
                  [sut/knots sut/->knots]
                  [sut/feet-per-minute sut/->feet-per-minute]
                  [sut/kilograms sut/->kilograms]
+                 [sut/grams sut/->grams]
                  [sut/pounds sut/->pounds]
+                 [sut/ounces sut/->ounces]
+                 [sut/grains sut/->grains]
                  [sut/seconds sut/->seconds]
                  [sut/minutes sut/->minutes]
                  [sut/hours sut/->hours]
@@ -94,7 +99,7 @@
                                      #"Quantities must have the same unit type."
                                      (qm/- (unit-a d1) (unit-b d2))))))
            (if (contains? (:multiplications sut/allowed-operations)
-                          [(sut/get-unit-type qa) (sut/get-unit-type qb)])
+                          [(sut/unit-type qa) (sut/unit-type qb)])
              (testing "Two quantities that may be multiplied"
                (is (qm/* (unit-a d1) (unit-b d2)))
                (is (qm/* (unit-b d2) (unit-a d1))))
@@ -106,7 +111,7 @@
                                      #"Multiplying two Quantities must result in a known unit-type"
                                      (qm/* (unit-b d2) (unit-a d1))))))
            (if (contains? (:divisions sut/allowed-operations)
-                          [(sut/get-unit-type qa) (sut/get-unit-type qb)])
+                          [(sut/unit-type qa) (sut/unit-type qb)])
              (testing "Two quantities that may be divided"
                (when-not (zero? d2)
                  (is (qm// (unit-a d1) (unit-b d2)))))

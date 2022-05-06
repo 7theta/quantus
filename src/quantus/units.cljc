@@ -4,9 +4,45 @@
 (defn pounds->kilograms [pounds] (* pounds kilograms-per-pound))
 (defn kilograms->pounds [kilograms] (/ kilograms kilograms-per-pound))
 
+(def ^:private grams-per-kilogram 1000.0)
+(defn kilograms->grams [kilograms] (* kilograms grams-per-kilogram))
+(defn grams->kilograms [grams] (/ grams grams-per-kilogram))
+
+(def ^:private ounces-per-kilogram 35.274)
+(defn kilograms->ounces [kilograms] (* kilograms ounces-per-kilogram))
+(defn ounces->kilograms [ounces] (/ ounces ounces-per-kilogram))
+
+(def ^:private ounces-per-pound 16.0)
+(defn pounds->ounces [pounds] (* pounds ounces-per-pound))
+(defn ounces->pounds [ounces] (/ ounces ounces-per-pound))
+
+(def ^:private grams-per-ounce (/ (* kilograms-per-pound grams-per-kilogram) ounces-per-pound))
+(defn ounces->grams [ounces] (* ounces grams-per-ounce))
+(defn grams->ounces [grams] (/ grams grams-per-ounce))
+
+(def ^:private grains-per-ounce 437.5)
+(defn ounces->grains [ounces] (* ounces grains-per-ounce))
+(defn grains->ounces [grains] (/ grains grains-per-ounce))
+
+(def ^:private grains-per-kilogram (* grains-per-ounce ounces-per-kilogram))
+(defn kilograms->grains [kilograms] (* kilograms grains-per-kilogram))
+(defn grains->kilograms [grains] (/ grains grains-per-kilogram))
+
+(def ^:private centimeters-per-meter 100.0)
+(defn meters->centimeters [meters] (* meters centimeters-per-meter))
+(defn centimeters->meters [centimeters] (/ centimeters centimeters-per-meter))
+
 (def ^:private meters-per-foot 0.3048)
 (defn feet->meters [feet] (* feet meters-per-foot))
 (defn meters->feet [meters] (/ meters meters-per-foot))
+
+(def ^:private centimeters-per-inch 2.54)
+(defn inches->centimeters [inches] (* inches centimeters-per-inch))
+(defn centimeters->inches [centimeters] (/ centimeters centimeters-per-inch))
+
+(def ^:private inches-per-foot 12.0)
+(defn feet->inches [feet] (* feet inches-per-foot))
+(defn inches->feet [inches] (/ inches inches-per-foot))
 
 (def ^:private seconds-per-minute 60.0)
 (defn minutes->seconds [minutes] (* minutes seconds-per-minute))

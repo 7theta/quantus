@@ -13,8 +13,8 @@
                       "quantity/temperature" (transit/read-handler quantus.core/kelvin)
                       "quantity/unitless"    (transit/read-handler quantus.core/unitless)}
                :write {Quantity (transit/write-handler
-                                 (fn [^Quantity q] (str "quantity/" (name (q/get-unit-type q))))
-                                 (fn [^Quantity q] (q/get-value q)))
+                                 (fn [^Quantity q] (str "quantity/" (name (q/unit-type q))))
+                                 (fn [^Quantity q] (q/value q)))
                        AngleQuantity (transit/write-handler
                                       (constantly "quantity/angle")
-                                      (fn [^AngleQuantity q] (q/get-value q)))}})
+                                      (fn [^AngleQuantity q] (q/value q)))}})
