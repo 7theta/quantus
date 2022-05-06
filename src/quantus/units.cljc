@@ -4,29 +4,29 @@
 (defn pounds->kilograms [pounds] (* pounds kilograms-per-pound))
 (defn kilograms->pounds [kilograms] (/ kilograms kilograms-per-pound))
 
-(def ^:private grams-per-kilogram 1000)
+(def ^:private grams-per-kilogram 1000.0)
 (defn kilograms->grams [kilograms] (* kilograms grams-per-kilogram))
 (defn grams->kilograms [grams] (/ grams grams-per-kilogram))
-
-(def ^:private grains-per-kilogram 15432.4)
-(defn kilograms->grains [kilograms] (* kilograms grains-per-kilogram))
-(defn grains->kilograms [grains] (/ grains grains-per-kilogram))
 
 (def ^:private ounces-per-kilogram 35.274)
 (defn kilograms->ounces [kilograms] (* kilograms ounces-per-kilogram))
 (defn ounces->kilograms [ounces] (/ ounces ounces-per-kilogram))
 
-(def ^:private ounces-per-pound 12)
+(def ^:private ounces-per-pound 16.0)
 (defn pounds->ounces [pounds] (* pounds ounces-per-pound))
 (defn ounces->pounds [ounces] (/ ounces ounces-per-pound))
+
+(def ^:private grams-per-ounce (/ (* kilograms-per-pound grams-per-kilogram) ounces-per-pound))
+(defn ounces->grams [ounces] (* ounces grams-per-ounce))
+(defn grams->ounces [grams] (/ grams grams-per-ounce))
 
 (def ^:private grains-per-ounce 437.5)
 (defn ounces->grains [ounces] (* ounces grains-per-ounce))
 (defn grains->ounces [grains] (/ grains grains-per-ounce))
 
-(def ^:private grams-per-ounce 28.3495)
-(defn ounces->grams [ounces] (* ounces grams-per-ounce))
-(defn grams->ounces [grams] (/ grams grams-per-ounce))
+(def ^:private grains-per-kilogram (* grains-per-ounce ounces-per-kilogram))
+(defn kilograms->grains [kilograms] (* kilograms grains-per-kilogram))
+(defn grains->kilograms [grains] (/ grains grains-per-kilogram))
 
 (def ^:private centimeters-per-meter 100.0)
 (defn meters->centimeters [meters] (* meters centimeters-per-meter))
