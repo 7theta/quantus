@@ -44,6 +44,14 @@
 (defn feet->inches [feet] (* feet inches-per-foot))
 (defn inches->feet [inches] (/ inches inches-per-foot))
 
+(def ^:private square-centimeters-per-square-meter 10000.0)
+(defn square-meters->square-centimeters [square-meters] (* square-meters square-centimeters-per-square-meter))
+(defn square-centimeters->square-meters [square-centimeters] (/ square-centimeters square-centimeters-per-square-meter))
+
+(def ^:private square-inches-per-square-meter 1550.0)
+(defn square-meters->square-inches [square-meters] (* square-meters square-inches-per-square-meter))
+(defn square-inches->square-meters [square-inches] (/ square-inches square-inches-per-square-meter))
+
 (def ^:private seconds-per-minute 60.0)
 (defn minutes->seconds [minutes] (* minutes seconds-per-minute))
 (defn seconds->minutes [seconds] (/ seconds seconds-per-minute))
