@@ -8,11 +8,12 @@
 ;;   You must not remove this notice, or any others, from this software.
 
 (ns quantus.math
-  #?(:clj (:require [clojure.math]))
+  (:require [clojure.core :as core]
+            #?(:clj [clojure.math]))
   (:refer-clojure :exclude [+ - * / = not= < > <= >= zero? pos? neg? min max #?(:clj abs :cljs divide)])
   #?(:import [java.lang Number]))
 
-(defn- arity-dispatch
+(defn arity-dispatch
   ([] ::nulary)
   ([x] (type x)) ; unary
   ([x y] [(type x) (type y)]) ; binary
@@ -302,24 +303,41 @@
   ([x y & more]
    (reduce min (min x y) more)))
 
-;; Trig
+;; Tools
 
-(defmulti sin type)
-#?(:clj (defmethod sin Number [x] (clojure.math/sin x))
-   :cljs (defmethod sin js/Number [x] (js/Math.sin x)))
+(defn linspace
+  "Outputs a range with `n` equally spaced elements, the first one being
+  `lower` and the last one being `upper`."
+  [lower upper n]
+  (let [d (core// (core/- upper lower) (dec n))]
+    (range lower (core/+ upper (core// d 2)) d)))
 
-(defmulti cos type)
-#?(:clj (defmethod cos Number [x] (clojure.math/cos x))
-   :cljs (defmethod cos js/Number [x] (js/Math.cos x)))
+(defn fn-average
+  "Maps `f` across all the elements in `rng` and computes the average of
+  the outputs.  Instead of range, upper and lower can be provided,
+  with an optional number of steps (default: 100) (see linspace)."
+  ([f rng]
+   (let [] (->> rng
+                (map f)
+                (reduce +))
+        (/ (count rng))))
+  ([f lower upper] (fn-average f lower upper 100))
+  ([f lower upper n] (fn-average f (linspace lower upper n))))
 
-(defmulti tan type)
-#?(:clj (defmethod tan Number [x] (clojure.math/tan x))
-   :cljs (defmethod tan js/Number [x] (js/Math.tan x)))
-
-(defmulti atan2 (fn [y x] [(type y) (type x)]))
-#?(:clj (defmethod atan2 [Number Number] [y x] (clojure.math/atan2 y x))
-   :cljs (defmethod atan2 [js/Number js/Number] [y x] (js/Math.atan2 y x)))
-
-
-
-;;; Private
+(defn interpolate
+  [data x-key x-val y-key]
+  (cond
+    (<= x-val (x-key (first data))) (y-key (first data))
+    (>= x-val (x-key (last data))) (y-key (last data))
+    :else
+    (let [ind (->> data
+                   (map-indexed vector)
+                   (drop-while #(< (x-key (second %)) x-val))
+                   ffirst)
+          d0 (nth data (dec ind))
+          d1 (nth data ind)
+          alpha (/ (- x-val (x-key d0))
+                   (- (x-key d1) (x-key d0)))]
+      (+ (y-key d0)
+         (* alpha (- (y-key d1)
+                     (y-key d0)))))))

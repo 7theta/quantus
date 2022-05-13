@@ -36,11 +36,18 @@
   (unit-type [_] unit-type-field)
   (value [_] value-field)
 
+  clojure.lang.ILookup
+  (valAt [q i]
+    (.valAt value-field i))
+  (valAt [q i not-found]
+    (.valAt value-field i not-found))
+
   ;; #?(:cljs
   ;;    IPrintWithWriter)
   ;; #?(:cljs (-pr-writer [obj writer _]
   ;;                      (write-all writer "#quantity/" (name (.. obj -unit-type)) " " (.. obj -value))))
   )
+
 
 #?(:clj (defmethod print-method Quantity [^Quantity q ^java.io.Writer w]
           (.write w (.toString q)))
@@ -137,27 +144,27 @@
 (defmethod qm/+ [Quantity Quantity]
   [^Quantity a ^Quantity b]
   (assert-unit-type-match a b)
-  (Quantity. (+ (value a) (value b))
+  (Quantity. (qm/+ (value a) (value b))
              (unit-type a)))
 
 (defmethod qm/- [Quantity Quantity]
   [^Quantity a ^Quantity b]
   (assert-unit-type-match a b)
-  (Quantity. (- (value a) (value b)) (unit-type a)))
+  (Quantity. (qm/- (value a) (value b)) (unit-type a)))
 
 (defmethod qm/* [Quantity Quantity]
   [^Quantity a ^Quantity b]
   (if-let [new-unit-type (get-in allowed-operations [:multiplications [(unit-type a) (unit-type b)]])]
-    (Quantity. (* (value a) (value b)) new-unit-type)
+    (Quantity. (qm/* (value a) (value b)) new-unit-type)
     (throw (ex-info "Multiplying two Quantities must result in a known unit-type" {:a a :b b}))))
 
 (defmethod qm/* [#?(:clj java.lang.Number :cljs js/Number) Quantity]
   [a ^Quantity b]
-  (Quantity. (* a (value b)) (unit-type b)))
+  (Quantity. (qm/* a (value b)) (unit-type b)))
 
 (defmethod qm/* [Quantity #?(:clj java.lang.Number :cljs js/Number)]
   [^Quantity a b]
-  (Quantity. (* (value a) b) (unit-type a)))
+  (Quantity. (qm/* (value a) b) (unit-type a)))
 
 (defmethod qm/divide [Quantity Quantity]
   [^Quantity a ^Quantity b]

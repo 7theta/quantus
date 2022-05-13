@@ -9,7 +9,8 @@
                :cljs [cljs.test :refer-macros [deftest is testing] :include-macros true])
             [cognitect.transit :as transit]
             #?(:cljs [cljs.reader :refer [read-string]])
-            [quantus.angles :as qa])
+            [quantus.angles :as qa]
+            [quantus.coordinates :as qc])
   (:refer-clojure :exclude [#?(:clj abs :cljs divide)])
   #?(:clj (:import [java.io ByteArrayInputStream ByteArrayOutputStream])))
 

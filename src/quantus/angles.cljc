@@ -23,19 +23,19 @@
 (defn degrees->radians [degrees] (* degrees radians-per-degree))
 (defn radians->degrees [radians] (/ radians radians-per-degree))
 
-(deftype AngleQuantity [value]
+(deftype AngleQuantity [value-field]
   Object
   (toString [^AngleQuantity this]
-    (str "#quantity/radians " value ))
+    (str "#quantity/radians " value-field))
   #?(:cljs IEquiv)
   (#?(:clj equals :cljs -equiv) [self q]
     (or (identical? self q)
         (and (instance? AngleQuantity q)
-             (= value (q/value q)))))
+             (= value-field (q/value q)))))
 
   q/QuantityProtocol
   (unit-type [_] :angle)
-  (value [_] value))
+  (value [_] value-field))
 
 #?(:clj (defmethod print-method AngleQuantity [^AngleQuantity q ^java.io.Writer w]
           (.write w (.toString q))))
@@ -78,19 +78,35 @@
   [^AngleQuantity a ^AngleQuantity b]
   (AngleQuantity. (+ (q/value a) (q/value b))))
 
-(defmethod qm/sin AngleQuantity
-  [^AngleQuantity a]
-  (qm/sin (:value a)))
+(defmulti sin type)
+#?(:clj (defmethod sin Number [x] (clojure.math/sin x))
+   :cljs (defmethod sin js/Number [x] (js/Math.sin x)))
 
-(defmethod qm/cos AngleQuantity
+(defmethod sin AngleQuantity
   [^AngleQuantity a]
-  (qm/cos (:value a)))
+  (sin (q/value a)))
 
-(defmethod qm/tan AngleQuantity
+(defmulti cos type)
+#?(:clj (defmethod cos Number [x] (clojure.math/cos x))
+   :cljs (defmethod cos js/Number [x] (js/Math.cos x)))
+
+(defmethod cos AngleQuantity
   [^AngleQuantity a]
-  (qm/tan (:value a)))
+  (cos (q/value a)))
 
-(defmethod qm/atan2 [Quantity Quantity]
+(defmulti tan type)
+#?(:clj (defmethod tan Number [x] (clojure.math/tan x))
+   :cljs (defmethod tan js/Number [x] (js/Math.tan x)))
+
+(defmethod tan AngleQuantity
+  [^AngleQuantity a]
+  (tan (q/value a)))
+
+(defmulti atan2 (fn [y x] [(type y) (type x)]))
+#?(:clj (defmethod atan2 [Number Number] [y x] (clojure.math/atan2 y x))
+   :cljs (defmethod atan2 [js/Number js/Number] [y x] (js/Math.atan2 y x)))
+
+(defmethod atan2 [Quantity Quantity]
   [^Quantity y ^Quantity x]
   (q/assert-unit-type-match y x)
-  (AngleQuantity. (qm/atan2 (q/value y) (q/value x))))
+  (AngleQuantity. (atan2 (q/value y) (q/value x))))

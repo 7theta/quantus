@@ -1,4 +1,5 @@
-(ns quantus.units)
+(ns quantus.units
+  (:require [quantus.math :as qm]))
 
 (def ^:private kilograms-per-pound 0.453592)
 (defn pounds->kilograms [pounds] (* pounds kilograms-per-pound))
@@ -29,44 +30,44 @@
 (defn grains->kilograms [grains] (/ grains grains-per-kilogram))
 
 (def ^:private centimeters-per-meter 100.0)
-(defn meters->centimeters [meters] (* meters centimeters-per-meter))
-(defn centimeters->meters [centimeters] (/ centimeters centimeters-per-meter))
+(defn meters->centimeters [meters] (qm/* meters centimeters-per-meter))
+(defn centimeters->meters [centimeters] (qm// centimeters centimeters-per-meter))
 
 (def ^:private meters-per-foot 0.3048)
-(defn feet->meters [feet] (* feet meters-per-foot))
-(defn meters->feet [meters] (/ meters meters-per-foot))
+(defn feet->meters [feet] (qm/* feet meters-per-foot))
+(defn meters->feet [meters] (qm// meters meters-per-foot))
 
 (def ^:private centimeters-per-inch 2.54)
-(defn inches->centimeters [inches] (* inches centimeters-per-inch))
-(defn centimeters->inches [centimeters] (/ centimeters centimeters-per-inch))
+(defn inches->centimeters [inches] (qm/* inches centimeters-per-inch))
+(defn centimeters->inches [centimeters] (qm// centimeters centimeters-per-inch))
 
 (def ^:private inches-per-foot 12.0)
-(defn feet->inches [feet] (* feet inches-per-foot))
-(defn inches->feet [inches] (/ inches inches-per-foot))
+(defn feet->inches [feet] (qm/* feet inches-per-foot))
+(defn inches->feet [inches] (qm// inches inches-per-foot))
 
 (def ^:private seconds-per-minute 60.0)
-(defn minutes->seconds [minutes] (* minutes seconds-per-minute))
-(defn seconds->minutes [seconds] (/ seconds seconds-per-minute))
+(defn minutes->seconds [minutes] (qm/* minutes seconds-per-minute))
+(defn seconds->minutes [seconds] (qm// seconds seconds-per-minute))
 
 (def ^:private seconds-per-hour 3600.0)
-(defn hours->seconds [hours] (* hours seconds-per-hour))
-(defn seconds->hours [seconds] (/ seconds seconds-per-hour))
+(defn hours->seconds [hours] (qm/* hours seconds-per-hour))
+(defn seconds->hours [seconds] (qm// seconds seconds-per-hour))
 
 (def ^:private meters-per-second-per-knot 0.51444444)
-(defn knots->meters-per-second [knots] (* knots meters-per-second-per-knot))
+(defn knots->meters-per-second [knots] (qm/* knots meters-per-second-per-knot))
 (defn meters-per-second->knots [meters-per-second]
-  (/ meters-per-second meters-per-second-per-knot))
+  (qm// meters-per-second meters-per-second-per-knot))
 
 (def ^:private meters-per-second-per-foot-per-minute (/ meters-per-foot seconds-per-minute))
 (defn feet-per-minute->meters-per-second [feet-per-minute]
-  (* feet-per-minute meters-per-second-per-foot-per-minute))
+  (qm/* feet-per-minute meters-per-second-per-foot-per-minute))
 (defn meters-per-second->feet-per-minute [meters-per-second]
-  (/ meters-per-second meters-per-second-per-foot-per-minute))
+  (qm// meters-per-second meters-per-second-per-foot-per-minute))
 
 (def ^:private knots-per-foot-per-minute
   (/ meters-per-second-per-knot meters-per-second-per-foot-per-minute))
-(defn knots->feet-per-minute [knots] (* knots knots-per-foot-per-minute))
-(defn feet-per-minute->knots [feet-per-minute] (/ feet-per-minute knots-per-foot-per-minute))
+(defn knots->feet-per-minute [knots] (qm/* knots knots-per-foot-per-minute))
+(defn feet-per-minute->knots [feet-per-minute] (qm// feet-per-minute knots-per-foot-per-minute))
 
 (def ^:private kelvin-per-rankine (/ 5.0 9.0))
 (def ^:private celsius-kelvin-offset 273.15)
