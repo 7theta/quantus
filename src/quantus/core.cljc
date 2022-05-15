@@ -86,11 +86,11 @@
 (defn inches [v] (Quantity. (-> v u/inches->centimeters u/centimeters->meters) :length))
 (defn ->inches [^Quantity q] (assert-unit-type q :length) (-> q value u/meters->centimeters u/centimeters->inches))
 
-(defn square-centimeters [v] (Quantity. (u/square-centimeters->square-meters v) :area))
-(defn ->square-centimeters [^Quantity q] (assert-unit-type q :area) (u/square-meters->square-centimeters (value q)))
+(defn centimeters-squared [v] (Quantity. (u/centimeters-squared->meters-squared v) :area))
+(defn ->centimeters-squared [^Quantity q] (assert-unit-type q :area) (u/meters-squared->centimeters-squared (value q)))
 
-(defn square-inches [v] (Quantity. (u/square-inches->square-meters v) :area))
-(defn ->square-inches [^Quantity q] (assert-unit-type q :area) (u/square-meters->square-inches (value q)))
+(defn inches-squared [v] (Quantity. (u/inches-squared->meters-squared v) :area))
+(defn ->inches-squared [^Quantity q] (assert-unit-type q :area) (u/meters-squared->inches-squared (value q)))
 
 (defn meters-per-second [v] (Quantity. v :speed))
 (defn ->meters-per-second [^Quantity q] (assert-unit-type q :speed) (value q))
