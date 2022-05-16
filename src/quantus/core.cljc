@@ -36,11 +36,12 @@
   (unit-type [_] unit-type-field)
   (value [_] value-field)
 
-  clojure.lang.ILookup
-  (valAt [q i]
-    (.valAt value-field i))
-  (valAt [q i not-found]
-    (.valAt value-field i not-found))
+  #?@(:clj
+      [clojure.lang.ILookup
+       (valAt [q i]
+              (.valAt value-field i))
+       (valAt [q i not-found]
+              (.valAt value-field i not-found))])
 
   ;; #?(:cljs
   ;;    IPrintWithWriter)
@@ -51,10 +52,10 @@
 
 #?(:clj (defmethod print-method Quantity [^Quantity q ^java.io.Writer w]
           (.write w (.toString q)))
-   ;; :cljs (extend-protocol IPrintWithWriter
-   ;;             quantus.core.Quantity
-   ;;             (-pr-writer [obj writer _]
-   ;;               (write-all writer "#quantity/" (name (unit-type obj)) " " (value obj))))
+   :cljs (extend-protocol IPrintWithWriter
+           quantus.core.Quantity
+           (-pr-writer [obj writer _]
+             (write-all writer "#quantity/" (name (unit-type obj)) " " (value obj))))
    )
 
 #?(:clj (. clojure.pprint/simple-dispatch addMethod Quantity #(print-method % *out*)))

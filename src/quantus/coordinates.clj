@@ -1,25 +1,26 @@
 (ns quantus.coordinates
-  (:require [quantus.core #?@(:cljs [:refer [Quantity]]) :as q]
-            [quantus.angles #?@(:cljs [:refer [AngleQuantity]]) :as qa]
+  (:require [quantus.core :as q]
+            [quantus.angles :as qa]
             [quantus.math :as qm]
             [clojure.core :as core])
-  #?(:clj (:import [quantus.core Quantity]
-                   [quantus.angles AngleQuantity]))
+  (:import [quantus.core Quantity]
+           [quantus.angles AngleQuantity])
   (:refer-clojure :exclude [+ - * /]))
 
 (defn- add-hashcode [hash x]
   (core/+ hash (core/* 37 hash) (Float/floatToIntBits x)))
 
-(definterface iCoordinateXYZ
-  (^double getX [])
-  (^double getY [])
-  (^double getZ []))
+(defprotocol
+    iCoordinateXYZ
+  (^double x [this])
+  (^double y [this])
+  (^double z [this]))
 
-(deftype CoordinateXYZ [^double x ^double y ^double z]
+(deftype CoordinateXYZ [^double x-field ^double y-field ^double z-field]
   iCoordinateXYZ
-  (getX [_] x)
-  (getY [_] y)
-  (getZ [_] z)
+  (x [_] x-field)
+  (y [_] y-field)
+  (z [_] z-field)
 
   clojure.lang.Counted
   (count [_] 3)
@@ -27,18 +28,18 @@
   clojure.lang.Sequential
 
   clojure.lang.Seqable
-  (seq [_] (list x y z))
+  (seq [_] (list x-field y-field z-field))
 
   clojure.lang.ILookup
   (valAt [c i]
     (.valAt c i nil))
   (valAt [_ i not-found]
     (case i
-      (0 :x) x
-      (1 :y) y
-      (2 :z) z
+      (0 :x) x-field
+      (1 :y) y-field
+      (2 :z) z-field
       (if (number? i)
-        (case (int i) 0 x 1 y 2 z not-found)
+        (case (int i) 0 x-field 1 y-field 2 z-field not-found)
         not-found)))
 
   clojure.lang.Associative
@@ -50,25 +51,25 @@
         false))
   (entryAt [_ k]
     (case k
-      (0 :x) (clojure.lang.MapEntry. 0 x)
-      (1 :y) (clojure.lang.MapEntry. 1 y)
-      (2 :z) (clojure.lang.MapEntry. 2 z)
+      (0 :x) (clojure.lang.MapEntry. 0 x-field)
+      (1 :y) (clojure.lang.MapEntry. 1 y-field)
+      (2 :z) (clojure.lang.MapEntry. 2 z-field)
       (when (number? k)
         (case (int k)
-          0 (clojure.lang.MapEntry. 0 x)
-          1 (clojure.lang.MapEntry. 1 y)
-          2 (clojure.lang.MapEntry. 2 z)
+          0 (clojure.lang.MapEntry. 0 x-field)
+          1 (clojure.lang.MapEntry. 1 y-field)
+          2 (clojure.lang.MapEntry. 2 z-field)
           nil))))
   (assoc [_ i v]
     (case i
-      (0 :x) (CoordinateXYZ. v y z)
-      (1 :y) (CoordinateXYZ. x v z)
-      (2 :z) (CoordinateXYZ. x y v)
+      (0 :x) (CoordinateXYZ. v y-field z-field)
+      (1 :y) (CoordinateXYZ. x-field v z-field)
+      (2 :z) (CoordinateXYZ. x-field y-field v)
       (when (number? i)
         (case (int i)
-          0 (CoordinateXYZ. v y z)
-          1 (CoordinateXYZ. x v z)
-          2 (CoordinateXYZ. x y v)))))
+          0 (CoordinateXYZ. v y-field z-field)
+          1 (CoordinateXYZ. x-field v z-field)
+          2 (CoordinateXYZ. x-field y-field v)))))
 
   clojure.lang.IFn
   (invoke [c i]
@@ -76,31 +77,32 @@
 
   Object
   (toString [_]
-    (str "#quantity/coordinate-xyz [" x " " y " " z "]"))
+    (str "#quantity/coordinate-xyz [" x-field " " y-field " " z-field "]"))
   (hashCode [_]
-    (-> 17 (add-hashcode x)
-        (add-hashcode y)
-        (add-hashcode z)))
+    (-> 17 (add-hashcode x-field)
+        (add-hashcode y-field)
+        (add-hashcode z-field)))
   (equals [self c]
     (or (identical? self c)
         (and (instance? CoordinateXYZ c)
-             (== x (.getX ^CoordinateXYZ c))
-             (== y (.getY ^CoordinateXYZ c))
-             (== z (.getZ ^CoordinateXYZ c)))
-        (and (counted? x)
-             (== (count x) 3)
-             (== x (c 0))
-             (== y (c 1))
-             (== z (c 2))))))
+             (== x-field (.x ^CoordinateXYZ c))
+             (== y-field (.y ^CoordinateXYZ c))
+             (== z-field (.z ^CoordinateXYZ c)))
+        (and (counted? c)
+             (== (count c) 3)
+             (== x-field (c 0))
+             (== y-field (c 1))
+             (== z-field (c 2))))))
 
-(definterface iCoordinateXY
-  (^double getX [])
-  (^double getY []))
+#_(defprotocol
+      iCoordinateXY
+    (^double x [this])
+    (^double y [this]))
 
-(deftype CoordinateXY [^double x ^double y]
-  iCoordinateXY
-  (getX [_] x)
-  (getY [_] y)
+(deftype CoordinateXY [^double x-field ^double y-field]
+  iCoordinateXYZ
+  (x [_] x-field)
+  (y [_] y-field)
 
   clojure.lang.Counted
   (count [_] 2)
@@ -108,17 +110,17 @@
   clojure.lang.Sequential
 
   clojure.lang.Seqable
-  (seq [_] (list x y))
+  (seq [_] (list x-field y-field))
 
   clojure.lang.ILookup
   (valAt [c i]
     (.valAt c i nil))
   (valAt [_ i not-found]
     (case i
-      (0 :x) x
-      (1 :y) y
+      (0 :x) x-field
+      (1 :y) y-field
       (if (number? i)
-        (case (int i) 0 x 1 y not-found)
+        (case (int i) 0 x-field 1 y-field not-found)
         not-found)))
 
   clojure.lang.Associative
@@ -130,21 +132,21 @@
         false))
   (entryAt [_ k]
     (case k
-      (0 :x) (clojure.lang.MapEntry. 0 x)
-      (1 :y) (clojure.lang.MapEntry. 1 y)
+      (0 :x) (clojure.lang.MapEntry. 0 x-field)
+      (1 :y) (clojure.lang.MapEntry. 1 y-field)
       (when (number? k)
         (case (int k)
-          0 (clojure.lang.MapEntry. 0 x)
-          1 (clojure.lang.MapEntry. 1 y)
+          0 (clojure.lang.MapEntry. 0 x-field)
+          1 (clojure.lang.MapEntry. 1 y-field)
           nil))))
   (assoc [_ i v]
     (case i
-      (0 :x) (CoordinateXY. v y)
-      (1 :y) (CoordinateXY. x v)
+      (0 :x) (CoordinateXY. v y-field)
+      (1 :y) (CoordinateXY. x-field v)
       (when (number? i)
         (case (int i)
-          0 (CoordinateXY. v y)
-          1 (CoordinateXY. x v)))))
+          0 (CoordinateXY. v y-field)
+          1 (CoordinateXY. x-field v)))))
 
   clojure.lang.IFn
   (invoke [c i]
@@ -152,83 +154,83 @@
 
   Object
   (toString [_]
-    (str "#quantity/coordinate-xy [" x " " y "]"))
+    (str "#quantity/coordinate-xy [" x-field " " y-field "]"))
   (hashCode [_]
-    (-> 17 (add-hashcode x)
-        (add-hashcode y)))
+    (-> 17 (add-hashcode x-field)
+        (add-hashcode y-field)))
   (equals [self c]
     (or (identical? self c)
         (and (instance? CoordinateXY c)
-             (== x (.getX ^CoordinateXY c))
-             (== y (.getY ^CoordinateXY c)))
+             (== x-field (.x ^CoordinateXY c))
+             (== y-field (.y ^CoordinateXY c)))
         (and (counted? c)
              (== (count c) 2)
-             (== x (c 0))
-             (== y (c 1))))))
+             (== x-field (c 0))
+             (== y-field (c 1))))))
 
 (defn- add-xy [^CoordinateXY c1 ^CoordinateXY c2]
-  (CoordinateXY. (core/+ (.getX c1) (.getX c2))
-                 (core/+ (.getY c1) (.getY c2))))
+  (CoordinateXY. (core/+ (.x c1) (.x c2))
+                 (core/+ (.y c1) (.y c2))))
 
 (defn- sub-xy [^CoordinateXY c1 ^CoordinateXY c2]
-  (CoordinateXY. (core/- (.getX c1) (.getX c2))
-                 (core/- (.getY c1) (.getY c2))))
+  (CoordinateXY. (core/- (.x c1) (.x c2))
+                 (core/- (.y c1) (.y c2))))
 
 (defn- mult-xy [^CoordinateXY c1 ^CoordinateXY c2]
-  (CoordinateXY. (core/* (.getX c1) (.getX c2))
-                 (core/* (.getY c1) (.getY c2))))
+  (CoordinateXY. (core/* (.x c1) (.x c2))
+                 (core/* (.y c1) (.y c2))))
 
 (defn- div-xy [^CoordinateXY c1 ^CoordinateXY c2]
-  (CoordinateXY. (core// (.getX c1) (.getX c2))
-                 (core// (.getY c1) (.getY c2))))
+  (CoordinateXY. (core// (.x c1) (.x c2))
+                 (core// (.y c1) (.y c2))))
 
 (defn- scale-xy [^CoordinateXY c ^double f]
-  (CoordinateXY. (core/* (.getX c) f)
-                 (core/* (.getY c) f)))
+  (CoordinateXY. (core/* (.x c) f)
+                 (core/* (.y c) f)))
 
 (defn- dot-xy [^CoordinateXY c1 ^CoordinateXY c2]
-  (core/+ (core/* (.getX c1) (.getX c2))
-          (core/* (.getY c1) (.getY c2))))
+  (core/+ (core/* (.x c1) (.x c2))
+          (core/* (.y c1) (.y c2))))
 
 (defn- magnitude-xy [^CoordinateXY c]
-  (let [x (.getX c)
-        y (.getY c)]
+  (let [x (.x c)
+        y (.y c)]
     (Math/sqrt (core/+ (core/* x x) (core/* y y)))))
 
 (defn- add-xyz [^CoordinateXYZ c1 ^CoordinateXYZ c2]
-  (CoordinateXYZ. (core/+ (.getX c1) (.getX c2))
-                  (core/+ (.getY c1) (.getY c2))
-                  (core/+ (.getZ c1) (.getZ c2))))
+  (CoordinateXYZ. (core/+ (.x c1) (.x c2))
+                  (core/+ (.y c1) (.y c2))
+                  (core/+ (.z c1) (.z c2))))
 
 (defn- sub-xyz [^CoordinateXYZ c1 ^CoordinateXYZ c2]
-  (CoordinateXYZ. (core/- (.getX c1) (.getX c2))
-                  (core/- (.getY c1) (.getY c2))
-                  (core/- (.getZ c1) (.getZ c2))))
+  (CoordinateXYZ. (core/- (.x c1) (.x c2))
+                  (core/- (.y c1) (.y c2))
+                  (core/- (.z c1) (.z c2))))
 
 (defn- mult-xyz [^CoordinateXYZ c1 ^CoordinateXYZ c2]
-  (CoordinateXYZ. (core/* (.getX c1) (.getX c2))
-                  (core/* (.getY c1) (.getY c2))
-                  (core/* (.getZ c1) (.getZ c2))))
+  (CoordinateXYZ. (core/* (.x c1) (.x c2))
+                  (core/* (.y c1) (.y c2))
+                  (core/* (.z c1) (.z c2))))
 
 (defn- div-xyz [^CoordinateXYZ c1 ^CoordinateXYZ c2]
-  (CoordinateXYZ. (core// (.getX c1) (.getX c2))
-                  (core// (.getY c1) (.getY c2))
-                  (core// (.getZ c1) (.getZ c2))))
+  (CoordinateXYZ. (core// (.x c1) (.x c2))
+                  (core// (.y c1) (.y c2))
+                  (core// (.z c1) (.z c2))))
 
 (defn- scale-xyz [^CoordinateXYZ c ^double f]
-  (CoordinateXYZ. (core/* (.getX c) f)
-                  (core/* (.getY c) f)
-                  (core/* (.getZ c) f)))
+  (CoordinateXYZ. (core/* (.x c) f)
+                  (core/* (.y c) f)
+                  (core/* (.z c) f)))
 
 (defn- dot-xyz [^CoordinateXYZ c1 ^CoordinateXYZ c2]
-  (core/+ (core/* (.getX c1) (.getX c2))
-          (core/* (.getY c1) (.getY c2))
-          (core/* (.getZ c1) (.getZ c2))))
+  (core/+ (core/* (.x c1) (.x c2))
+          (core/* (.y c1) (.y c2))
+          (core/* (.z c1) (.z c2))))
 
 (defn- magnitude-xyz [^CoordinateXYZ c]
-  (let [x (.getX c)
-        y (.getY c)
-        z (.getZ c)]
+  (let [x (.x c)
+        y (.y c)
+        z (.z c)]
     (Math/sqrt (core/+ (core/* x x) (core/* y y) (core/* z z)))))
 
 (defprotocol Coordinate
@@ -305,31 +307,31 @@
 (defn cross
   "Find the cross-product of two 3D coordinates."
   [^CoordinateXYZ c1 ^CoordinateXYZ c2]
-  (CoordinateXYZ. (- (* (.getY c1) (.getZ c2))
-                     (* (.getZ c1) (.getY c2)))
-                  (- (* (.getZ c1) (.getX c2))
-                     (* (.getX c1) (.getZ c2)))
-                  (- (* (.getX c1) (.getY c2))
-                     (* (.getY c1) (.getX c2)))))
+  (CoordinateXYZ. (- (* (.y c1) (.z c2))
+                     (* (.z c1) (.y c2)))
+                  (- (* (.z c1) (.x c2))
+                     (* (.x c1) (.z c2)))
+                  (- (* (.x c1) (.y c2))
+                     (* (.y c1) (.x c2)))))
 
 (defn get-x
   "Find the x component of a coordinate."
   [c]
   (if (instance? CoordinateXYZ c)
-    (.getX ^CoordinateXYZ c)
-    (.getX ^CoordinateXY c)))
+    (.x ^CoordinateXYZ c)
+    (.x ^CoordinateXY c)))
 
 (defn get-y
   "Find the y component of a coordinate."
   [c]
   (if (instance? CoordinateXYZ c)
-    (.getY ^CoordinateXYZ c)
-    (.getY ^CoordinateXY c)))
+    (.y ^CoordinateXYZ c)
+    (.y ^CoordinateXY c)))
 
 (defn get-z
   "Find the z component of a coordinate."
   [c]
-  (.getZ ^CoordinateXYZ c))
+  (.z ^CoordinateXYZ c))
 
 (defn coordinate
   "Create a new XY or XYZ coordinate."
@@ -357,18 +359,18 @@
     coll
     (apply coordinate coll)))
 
-#?(:clj
-   (defmethod print-method CoordinateXY [^CoordinateXY c ^java.io.Writer w]
-     (.write w (.toString c)))
+(do
+  (defmethod print-method CoordinateXY [^CoordinateXY c ^java.io.Writer w]
+    (.write w (.toString c)))
 
-   (defmethod print-method CoordinateXYZ [^CoordinateXYZ c ^java.io.Writer w]
-     (.write w (.toString c)))
+  (defmethod print-method CoordinateXYZ [^CoordinateXYZ c ^java.io.Writer w]
+    (.write w (.toString c)))
 
-   (defmethod print-dup CoordinateXY [^CoordinateXY c ^java.io.Writer w]
-     (.write w (.toString c)))
+  (defmethod print-dup CoordinateXY [^CoordinateXY c ^java.io.Writer w]
+    (.write w (.toString c)))
 
-   (defmethod print-dup CoordinateXYZ [^CoordinateXYZ c ^java.io.Writer w]
-     (.write w (.toString c))))
+  (defmethod print-dup CoordinateXYZ [^CoordinateXYZ c ^java.io.Writer w]
+    (.write w (.toString c))))
 
 ;; XY
 
@@ -376,8 +378,8 @@
   "Create a coordinateXY"
   qm/arity-dispatch)
 
-(defmethod xy [#?(:clj java.lang.Number :cljs js/Number)
-               #?(:clj java.lang.Number :cljs js/Number)]
+(defmethod xy [java.lang.Number
+               java.lang.Number]
   [x y]
   (CoordinateXY. x y))
 
@@ -408,11 +410,11 @@
   [^CoordinateXY a ^CoordinateXY b]
   (* a b))
 
-(defmethod qm/* [CoordinateXY #?(:clj java.lang.Number :cljs js/Number)]
+(defmethod qm/* [CoordinateXY java.lang.Number]
   [^CoordinateXY a b]
   (scale a b))
 
-(defmethod qm/* [#?(:clj java.lang.Number :cljs js/Number) CoordinateXY]
+(defmethod qm/* [java.lang.Number CoordinateXY]
   [a ^CoordinateXY b]
   (scale b a))
 
@@ -420,7 +422,7 @@
   [^CoordinateXY a ^CoordinateXY b]
   (/ a b))
 
-(defmethod qm/divide [CoordinateXY #?(:clj java.lang.Number :cljs js/Number)]
+(defmethod qm/divide [CoordinateXY java.lang.Number]
   [^CoordinateXY a b]
   (scale a (core// b)))
 
@@ -434,7 +436,7 @@
 
 (defmethod angle CoordinateXY
   [^CoordinateXY c]
-  (qa/atan2 (.getY c) (.getX c)))
+  (qa/atan2 (.y c) (.x c)))
 
 ;;; XYZ
 
@@ -442,9 +444,9 @@
   "Create a coordinateXYZ"
   (fn [x y z] [(type x) (type y) (type z)]))
 
-(defmethod xyz [#?(:clj java.lang.Number :cljs js/Number)
-                #?(:clj java.lang.Number :cljs js/Number)
-                #?(:clj java.lang.Number :cljs js/Number)]
+(defmethod xyz [java.lang.Number
+                java.lang.Number
+                java.lang.Number]
   [x y z]
   (CoordinateXYZ. x y z))
 
@@ -479,11 +481,11 @@
   [^CoordinateXYZ a ^CoordinateXYZ b]
   (* a b))
 
-(defmethod qm/* [CoordinateXYZ #?(:clj java.lang.Number :cljs js/Number)]
+(defmethod qm/* [CoordinateXYZ java.lang.Number]
   [^CoordinateXYZ a b]
   (scale a b))
 
-(defmethod qm/* [#?(:clj java.lang.Number :cljs js/Number) CoordinateXYZ]
+(defmethod qm/* [java.lang.Number CoordinateXYZ]
   [a ^CoordinateXYZ b]
   (scale b a))
 
@@ -491,6 +493,6 @@
   [^CoordinateXYZ a ^CoordinateXYZ b]
   (/ a b))
 
-(defmethod qm/divide [CoordinateXYZ #?(:clj java.lang.Number :cljs js/Number)]
+(defmethod qm/divide [CoordinateXYZ java.lang.Number]
   [^CoordinateXYZ a b]
   (scale a (core// b)))
