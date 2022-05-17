@@ -7,7 +7,7 @@
 ;;   the terms of this license.
 ;;   You must not remove this notice, or any others, from this software.
 
-(defproject com.7theta/quantus "0.3.0"
+(defproject com.7theta/quantus "0.4.0"
   :description "Library of handling quantities with units"
   :url "https://github.com/7theta/quantus"
   :license {:name "Eclipse Public License"
@@ -19,7 +19,8 @@
                                   [org.clojure/tools.namespace "1.2.0"]
                                   [org.clojure/test.check "1.1.1"]
                                   [com.gfredericks/test.chuck "0.2.13"]
-                                  [thheller/shadow-cljs "2.18.0"]]
+                                  [thheller/shadow-cljs "2.18.0"]
+                                  [criterium "0.4.6"]]
                    :source-paths ["dev" "example/src"]}}
   :clean-targets ^{:protect false} ["out" "target"]
   :scm {:name "git"

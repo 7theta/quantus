@@ -8,11 +8,12 @@
 ;;   You must not remove this notice, or any others, from this software.
 
 (ns quantus.math
-  #?(:clj (:require [clojure.math]))
+  (:require [clojure.core :as core]
+            #?(:clj [clojure.math]))
   (:refer-clojure :exclude [+ - * / = not= < > <= >= zero? pos? neg? min max #?(:clj abs :cljs divide)])
   #?(:import [java.lang Number]))
 
-(defn- arity-dispatch
+(defn arity-dispatch
   ([] ::nulary)
   ([x] (type x)) ; unary
   ([x y] [(type x) (type y)]) ; binary
@@ -302,24 +303,54 @@
   ([x y & more]
    (reduce min (min x y) more)))
 
-;; Trig
+;; Tools
 
-(defmulti sin type)
-#?(:clj (defmethod sin Number [x] (clojure.math/sin x))
-   :cljs (defmethod sin js/Number [x] (js/Math.sin x)))
+(defn linspace
+  "Outputs a range with `n` equally spaced elements, the first one being
+  `lower` and the last one being `upper`."
+  [lower upper n]
+  (let [d (core// (core/- upper lower) (dec n))]
+    (range lower (core/+ upper (core// d 2)) d)))
 
-(defmulti cos type)
-#?(:clj (defmethod cos Number [x] (clojure.math/cos x))
-   :cljs (defmethod cos js/Number [x] (js/Math.cos x)))
+(defn fn-average
+  "Maps `f` across all the elements in `rng` and computes the average of
+  the outputs.  Instead of range, upper and lower can be provided,
+  with an optional number of steps (default: 100) (see linspace)."
+  ([f rng]
+   (let [sum-f (->> rng
+                    (map f)
+                    (reduce +))]
+     (/ sum-f (count rng))))
+  ([f lower upper] (fn-average f lower upper 100))
+  ([f lower upper n] (fn-average f (linspace lower upper n))))
 
-(defmulti tan type)
-#?(:clj (defmethod tan Number [x] (clojure.math/tan x))
-   :cljs (defmethod tan js/Number [x] (js/Math.tan x)))
+(defn interpolate
+  "Given `data` that consists of a sequence of collections (typically
+  maps or tuples), this function will sort it by `x-key` and return a
+  function that given an arbitrary `x-val`, will return the
+  interpolated value for `y-key`.
 
-(defmulti atan2 (fn [y x] [(type y) (type x)]))
-#?(:clj (defmethod atan2 [Number Number] [y x] (clojure.math/atan2 y x))
-   :cljs (defmethod atan2 [js/Number js/Number] [y x] (js/Math.atan2 y x)))
+  If `x-key` and `y-key` are not provided, they default to `first` and
+  `second`, for working with tuples.
 
-
-
-;;; Private
+  If `x-val` is outside the range of the x-key values for the data,
+  the outermost y value is returned."
+  ([data] (interpolate data first second))
+  ([data x-key y-key]
+   (let [sorted-data (sort-by x-key data)]
+     (fn [x-val]
+       (cond
+         (<= x-val (x-key (first sorted-data))) (y-key (first sorted-data))
+         (>= x-val (x-key (last sorted-data))) (y-key (last sorted-data))
+         :else
+         (let [ind (->> sorted-data
+                        (map-indexed vector)
+                        (drop-while #(< (x-key (second %)) x-val))
+                        ffirst)
+               d0 (nth sorted-data (dec ind))
+               d1 (nth sorted-data ind)
+               alpha (/ (- x-val (x-key d0))
+                        (- (x-key d1) (x-key d0)))]
+           (+ (y-key d0)
+              (* alpha (- (y-key d1)
+                          (y-key d0))))))))))

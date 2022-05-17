@@ -9,25 +9,30 @@
                :cljs [cljs.test :refer-macros [deftest is testing] :include-macros true])
             [cognitect.transit :as transit]
             #?(:cljs [cljs.reader :refer [read-string]])
-            [quantus.angles :as qa])
+            [quantus.angles :as qa]
+            [quantus.coordinates :as qc])
   (:refer-clojure :exclude [#?(:clj abs :cljs divide)])
   #?(:clj (:import [java.io ByteArrayInputStream ByteArrayOutputStream])))
 
 (def units-list [[sut/meters sut/->meters]
-                 [sut/feet sut/->feet]
                  [sut/centimeters sut/->centimeters]
+                 [sut/feet sut/->feet]
                  [sut/inches sut/->inches]
+                 [sut/meters-squared sut/->meters-squared]
+                 [sut/centimeters-squared sut/->centimeters-squared]
+                 [sut/inches-squared sut/->inches-squared]
+                 [sut/seconds sut/->seconds]
+                 [sut/minutes sut/->minutes]
+                 [sut/hours sut/->hours]
                  [sut/meters-per-second sut/->meters-per-second]
                  [sut/knots sut/->knots]
                  [sut/feet-per-minute sut/->feet-per-minute]
+                 [sut/meters-per-second-squared sut/->meters-per-second-squared]
                  [sut/kilograms sut/->kilograms]
                  [sut/grams sut/->grams]
                  [sut/pounds sut/->pounds]
                  [sut/ounces sut/->ounces]
                  [sut/grains sut/->grains]
-                 [sut/seconds sut/->seconds]
-                 [sut/minutes sut/->minutes]
-                 [sut/hours sut/->hours]
                  [sut/kelvin sut/->kelvin]
                  [sut/rankine sut/->rankine]
                  [sut/celsius sut/->celsius]

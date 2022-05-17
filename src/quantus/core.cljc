@@ -24,7 +24,7 @@
 (deftype Quantity [value-field ^clojure.lang.Keyword unit-type-field]
   Object
   (toString [^Quantity this]
-    (str "#quantity/" (si-units unit-type-field) " " value-field))
+    (str "#quantity." (name unit-type-field) "/" (:name (si-units unit-type-field)) " " value-field))
   #?(:cljs IEquiv)
   (#?(:clj equals :cljs -equiv) [self q]
     (or (identical? self q)
@@ -36,28 +36,20 @@
   (unit-type [_] unit-type-field)
   (value [_] value-field)
 
-  ;; #?(:cljs
-  ;;    IPrintWithWriter)
-  ;; #?(:cljs (-pr-writer [obj writer _]
-  ;;                      (write-all writer "#quantity/" (name (.. obj -unit-type)) " " (.. obj -value))))
-  )
+  #?@(:clj
+      [clojure.lang.ILookup
+       (valAt [q i]
+              (Quantity. (.valAt value-field i) unit-type-field))
+       (valAt [q i not-found]
+              (Quantity. (.valAt value-field i not-found) unit-type-field))]))
+
 
 #?(:clj (defmethod print-method Quantity [^Quantity q ^java.io.Writer w]
           (.write w (.toString q)))
-   ;; :cljs (extend-protocol IPrintWithWriter
-   ;;             quantus.core.Quantity
-   ;;             (-pr-writer [obj writer _]
-   ;;               (write-all writer "#quantity/" (name (unit-type obj)) " " (value obj))))
-   )
-
-#?(:clj (. clojure.pprint/simple-dispatch addMethod Quantity #(print-method % *out*)))
-
-;; (defn parse-time [q] (Quantity. q :time))
-;; (defn parse-length [q] (Quantity. q :length))
-;; (defn parse-mass [q] (Quantity. q :mass))
-;; (defn parse-speed [q] (Quantity. q :speed))
-;; (defn parse-temperature [q] (Quantity. q :temperature))
-;; (defn parse-unitless [q] (Quantity. q :unitless))
+   :cljs (extend-protocol IPrintWithWriter
+           quantus.core.Quantity
+           (-pr-writer [obj writer _]
+             (write-all writer "#quantity." (name (unit-type obj)) "/" (:name (si-units (unit-type obj))) " " (value obj)))))
 
 (defn unit-type-match?
   [^Quantity a ^Quantity b]
@@ -77,20 +69,32 @@
 (defn meters [v] (Quantity. v :length))
 (defn ->meters [^Quantity q] (assert-unit-type q :length) (value q))
 
-(defn feet [v] (Quantity. (u/feet->meters v) :length))
-(defn ->feet [^Quantity q] (assert-unit-type q :length) (u/meters->feet (value q)))
-
 (defn centimeters [v] (Quantity. (u/centimeters->meters v) :length))
 (defn ->centimeters [^Quantity q] (assert-unit-type q :length) (u/meters->centimeters (value q)))
 
+(defn feet [v] (Quantity. (u/feet->meters v) :length))
+(defn ->feet [^Quantity q] (assert-unit-type q :length) (u/meters->feet (value q)))
+
 (defn inches [v] (Quantity. (-> v u/inches->centimeters u/centimeters->meters) :length))
 (defn ->inches [^Quantity q] (assert-unit-type q :length) (-> q value u/meters->centimeters u/centimeters->inches))
+
+(defn meters-squared [v] (Quantity. v :area))
+(defn ->meters-squared [^Quantity q] (assert-unit-type q :area) (value q))
 
 (defn centimeters-squared [v] (Quantity. (u/centimeters-squared->meters-squared v) :area))
 (defn ->centimeters-squared [^Quantity q] (assert-unit-type q :area) (u/meters-squared->centimeters-squared (value q)))
 
 (defn inches-squared [v] (Quantity. (u/inches-squared->meters-squared v) :area))
 (defn ->inches-squared [^Quantity q] (assert-unit-type q :area) (u/meters-squared->inches-squared (value q)))
+
+(defn seconds [v] (Quantity. v :time))
+(defn ->seconds [^Quantity q] (assert-unit-type q :time) (value q))
+
+(defn minutes [v] (Quantity. (u/minutes->seconds v) :time))
+(defn ->minutes [^Quantity q] (assert-unit-type q :time) (u/seconds->minutes (value q)))
+
+(defn hours [v] (Quantity. (u/hours->seconds v) :time))
+(defn ->hours [^Quantity q] (assert-unit-type q :time) (u/seconds->hours (value q)))
 
 (defn meters-per-second [v] (Quantity. v :speed))
 (defn ->meters-per-second [^Quantity q] (assert-unit-type q :speed) (value q))
@@ -100,6 +104,9 @@
 
 (defn feet-per-minute [v] (Quantity. (u/feet-per-minute->meters-per-second v) :speed))
 (defn ->feet-per-minute [^Quantity q] (assert-unit-type q :speed) (u/meters-per-second->feet-per-minute (value q)))
+
+(defn meters-per-second-squared [v] (Quantity. v :acceleration))
+(defn ->meters-per-second-squared [^Quantity q] (assert-unit-type q :acceleration) (value q))
 
 (defn kilograms [v] (Quantity. v :mass))
 (defn ->kilograms [^Quantity q] (assert-unit-type q :mass) (value q))
@@ -115,15 +122,6 @@
 
 (defn grains [v] (Quantity. (u/grains->kilograms v) :mass))
 (defn ->grains [^Quantity q] (assert-unit-type q :mass) (u/kilograms->grains (value q)))
-
-(defn seconds [v] (Quantity. v :time))
-(defn ->seconds [^Quantity q] (assert-unit-type q :time) (value q))
-
-(defn minutes [v] (Quantity. (u/minutes->seconds v) :time))
-(defn ->minutes [^Quantity q] (assert-unit-type q :time) (u/seconds->minutes (value q)))
-
-(defn hours [v] (Quantity. (u/hours->seconds v) :time))
-(defn ->hours [^Quantity q] (assert-unit-type q :time) (u/seconds->hours (value q)))
 
 (defn kelvin [v] (Quantity. v :temperature))
 (defn ->kelvin [^Quantity q] (assert-unit-type q :temperature) (value q))
@@ -143,27 +141,27 @@
 (defmethod qm/+ [Quantity Quantity]
   [^Quantity a ^Quantity b]
   (assert-unit-type-match a b)
-  (Quantity. (+ (value a) (value b))
+  (Quantity. (qm/+ (value a) (value b))
              (unit-type a)))
 
 (defmethod qm/- [Quantity Quantity]
   [^Quantity a ^Quantity b]
   (assert-unit-type-match a b)
-  (Quantity. (- (value a) (value b)) (unit-type a)))
+  (Quantity. (qm/- (value a) (value b)) (unit-type a)))
 
 (defmethod qm/* [Quantity Quantity]
   [^Quantity a ^Quantity b]
   (if-let [new-unit-type (get-in allowed-operations [:multiplications [(unit-type a) (unit-type b)]])]
-    (Quantity. (* (value a) (value b)) new-unit-type)
+    (Quantity. (qm/* (value a) (value b)) new-unit-type)
     (throw (ex-info "Multiplying two Quantities must result in a known unit-type" {:a a :b b}))))
 
 (defmethod qm/* [#?(:clj java.lang.Number :cljs js/Number) Quantity]
   [a ^Quantity b]
-  (Quantity. (* a (value b)) (unit-type b)))
+  (Quantity. (qm/* a (value b)) (unit-type b)))
 
 (defmethod qm/* [Quantity #?(:clj java.lang.Number :cljs js/Number)]
   [^Quantity a b]
-  (Quantity. (* (value a) b) (unit-type a)))
+  (Quantity. (qm/* (value a) b) (unit-type a)))
 
 (defmethod qm/divide [Quantity Quantity]
   [^Quantity a ^Quantity b]
@@ -263,11 +261,11 @@
          u))))
 
 (def si-units
-  {:length "meters"
-   :time "seconds"
-   :speed "meters-per-second"
-   :acceleration "meters-per-second-squared"
-   :area "meters-squared"
-   :unitless "unitless"
-   :mass "kilograms"
-   :temperature "kelvin"})
+  {:length {:fn meters :name "meters"}
+   :area {:fn meters-squared :name "meters-squared"}
+   :time {:fn seconds :name "seconds"}
+   :speed {:fn meters-per-second :name "meters-per-second"}
+   :acceleration {:fn meters-per-second-squared :name "meters-per-second-squared"}
+   :mass {:fn kilograms :name "kilograms"}
+   :temperature {:fn kelvin :name "kelvin"}
+   :unitless {:fn unitless :name "unitless"}})
