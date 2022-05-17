@@ -41,13 +41,7 @@
        (valAt [q i]
               (.valAt value-field i))
        (valAt [q i not-found]
-              (.valAt value-field i not-found))])
-
-  ;; #?(:cljs
-  ;;    IPrintWithWriter)
-  ;; #?(:cljs (-pr-writer [obj writer _]
-  ;;                      (write-all writer "#quantity/" (name (.. obj -unit-type)) " " (.. obj -value))))
-  )
+              (.valAt value-field i not-found))]))
 
 
 #?(:clj (defmethod print-method Quantity [^Quantity q ^java.io.Writer w]
@@ -55,17 +49,7 @@
    :cljs (extend-protocol IPrintWithWriter
            quantus.core.Quantity
            (-pr-writer [obj writer _]
-             (write-all writer "#quantity/" (name (unit-type obj)) " " (value obj))))
-   )
-
-#?(:clj (. clojure.pprint/simple-dispatch addMethod Quantity #(print-method % *out*)))
-
-;; (defn parse-time [q] (Quantity. q :time))
-;; (defn parse-length [q] (Quantity. q :length))
-;; (defn parse-mass [q] (Quantity. q :mass))
-;; (defn parse-speed [q] (Quantity. q :speed))
-;; (defn parse-temperature [q] (Quantity. q :temperature))
-;; (defn parse-unitless [q] (Quantity. q :unitless))
+             (write-all writer "#quantity." (name (unit-type obj)) "/" (name (si-units (unit-type obj))) " " (value obj)))))
 
 (defn unit-type-match?
   [^Quantity a ^Quantity b]

@@ -10,20 +10,20 @@
     (core/+ hash (core/* 37 hash) (Float/floatToIntBits x)))
 
 (defprotocol
-    iCoordinateXYZ
+    CoordinateProtocol
   (^double x [this])
   (^double y [this])
   (^double z [this]))
 
 (deftype CoordinateXYZ [^double x-field ^double y-field ^double z-field]
-  iCoordinateXYZ
+  CoordinateProtocol
   (x [_] x-field)
   (y [_] y-field)
   (z [_] z-field)
 
   Object
   (toString [_]
-    (str "#quantity/coordinate-xyz [" x-field " " y-field " " z-field "]"))
+    (str "#quantity.coordinate/xyz [" x-field " " y-field " " z-field "]"))
 
   IEquiv
   (-equiv [self c]
@@ -38,19 +38,14 @@
              (== y-field (nth c 1))
              (== y-field (nth c 2))))))
 
-#_(defprotocol
-      iCoordinateXY
-    (^double x [this])
-    (^double y [this]))
-
 (deftype CoordinateXY [^double x-field ^double y-field]
-  iCoordinateXYZ
+  CoordinateProtocol
   (x [_] x-field)
   (y [_] y-field)
 
   Object
   (toString [_]
-    (str "#quantity/coordinate-xy [" x-field " " y-field "]"))
+    (str "#quantity.coordinate/xy [" x-field " " y-field "]"))
 
   IEquiv
   (-equiv [self c]
@@ -66,10 +61,10 @@
 (extend-protocol IPrintWithWriter
   quantus.coordinates.CoordinateXY
   (-pr-writer [obj writer _]
-    (write-all writer "#quantity/coordinate-xy [" (x obj) " " (y obj) "]" ))
+    (write-all writer "#quantity.coordinate/xy [" (x obj) " " (y obj) "]" ))
   quantus.coordinates.CoordinateXYZ
   (-pr-writer [obj writer _]
-    (write-all writer "#quantity/coordinate-xyz [" (x obj) " " (y obj) " " (z obj) "]" )))
+    (write-all writer "#quantity.coordinate/xyz [" (x obj) " " (y obj) " " (z obj) "]" )))
 
 (defn coordinate
   "Create a new XY or XYZ coordinate."

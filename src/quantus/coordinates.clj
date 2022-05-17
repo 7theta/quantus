@@ -11,13 +11,13 @@
   (core/+ hash (core/* 37 hash) (Float/floatToIntBits x)))
 
 (defprotocol
-    iCoordinateXYZ
+    CoordinateProtocol
   (^double x [this])
   (^double y [this])
   (^double z [this]))
 
 (deftype CoordinateXYZ [^double x-field ^double y-field ^double z-field]
-  iCoordinateXYZ
+  CoordinateProtocol
   (x [_] x-field)
   (y [_] y-field)
   (z [_] z-field)
@@ -77,7 +77,7 @@
 
   Object
   (toString [_]
-    (str "#quantity/coordinate-xyz [" x-field " " y-field " " z-field "]"))
+    (str "#quantity.coordinate/xyz [" x-field " " y-field " " z-field "]"))
   (hashCode [_]
     (-> 17 (add-hashcode x-field)
         (add-hashcode y-field)
@@ -94,13 +94,8 @@
              (== y-field (c 1))
              (== z-field (c 2))))))
 
-#_(defprotocol
-      iCoordinateXY
-    (^double x [this])
-    (^double y [this]))
-
 (deftype CoordinateXY [^double x-field ^double y-field]
-  iCoordinateXYZ
+  CoordinateProtocol
   (x [_] x-field)
   (y [_] y-field)
 
@@ -154,7 +149,7 @@
 
   Object
   (toString [_]
-    (str "#quantity/coordinate-xy [" x-field " " y-field "]"))
+    (str "#quantity.coordinate/xy [" x-field " " y-field "]"))
   (hashCode [_]
     (-> 17 (add-hashcode x-field)
         (add-hashcode y-field)))
@@ -258,16 +253,7 @@
   (div* [c1 c2] (div-xyz c1 c2))
   (scale [c f] (scale-xyz c f))
   (dot [c1 c2] (dot-xyz c1 c2))
-  (magnitude [c] (magnitude-xyz c))
-  ;; Quantity
-  ;; (add* [c1 c2] (add-xyz c1 c2))
-  ;; (sub* [c1 c2] (sub-xyz c1 c2))
-  ;; (mult* [c1 c2] (mult-xyz c1 c2))
-  ;; (div* [c1 c2] (div-xyz c1 c2))
-  ;; (scale [c f] (scale-xyz c f))
-  ;; (dot [c1 c2] (dot-xyz c1 c2))
-  ;; (magnitude [c] (magnitude-xyz c))
-  )
+  (magnitude [c] (magnitude-xyz c)))
 
 (defn +
   "Return the sum of one or more coordinates."

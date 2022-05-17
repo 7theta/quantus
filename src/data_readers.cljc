@@ -32,5 +32,5 @@
  quantity.temperature/fahrenheit   quantus.core/fahrenheit
  quantity.unitless/unitless        quantus.core/unitless
  quantity.angle/radians            quantus.angles/radians
- quantity/coordinate-xy            quantus.coordinates/into-xy
- quantity/coordinate-xyz           quantus.coordinates/into-xyz}
+ quantity.coordinate/xy            quantus.coordinates/into-xy
+ quantity.coordinate/xyz           quantus.coordinates/into-xyz}

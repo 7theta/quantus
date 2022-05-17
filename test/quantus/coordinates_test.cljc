@@ -67,18 +67,16 @@
                                  (not= unit-b identity))]
                 (let [qa (unit-a c12)
                       qb (unit-b c12)]
-                  (if (q/unit-type-match? qa qb)#_(and (instance? Quantity qa)
-                                                       (instance? Quantity qb)
-                                                       )
-                      (testing "Two quantities with matching unit-types should work together."
-                        (let [ua1 (unit-a c12)
-                              ub1 (unit-b c12)
-                              ua2 (unit-a c21)
-                              ub2 (unit-b c21)]
-                          (is (approx= (qm/+ c12 c21) (->unit-a (qm/+ ua1 ua2))))
-                          (is (approx= (qm/+ c12 c21) (->unit-b (qm/+ ub1 ub2))))
-                          (is (->unit-a (qm/+ ua1 ub1 ua2 ub2)))
-                          (is (->unit-b (qm/+ ua1 ub1 ua2 ub2))))))
+                  (if (q/unit-type-match? qa qb)
+                    (testing "Two quantities with matching unit-types should work together."
+                      (let [ua1 (unit-a c12)
+                            ub1 (unit-b c12)
+                            ua2 (unit-a c21)
+                            ub2 (unit-b c21)]
+                        (is (approx= (qm/+ c12 c21) (->unit-a (qm/+ ua1 ua2))))
+                        (is (approx= (qm/+ c12 c21) (->unit-b (qm/+ ub1 ub2))))
+                        (is (->unit-a (qm/+ ua1 ub1 ua2 ub2)))
+                        (is (->unit-b (qm/+ ua1 ub1 ua2 ub2))))))
                   (when (contains? (:multiplications q/allowed-operations)
                                    [(q/unit-type qa) (q/unit-type qb)])
                     (testing "Two quantities that may be multiplied"
