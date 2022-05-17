@@ -19,7 +19,7 @@
                       "coordinate/xy"           (transit/read-handler quantus.coordinates/into-xy)
                       "coordinate/xyz"          (transit/read-handler quantus.coordinates/into-xyz)}
                :write {Quantity (transit/write-handler
-                                 (fn [^Quantity q] (str "quantity." (name (q/unit-type q)) "/" (name (q/si-units (q/unit-type q)))))
+                                 (fn [^Quantity q] (str "quantity." (name (q/unit-type q)) "/" (:name (q/si-units (q/unit-type q)))))
                                  (fn [^Quantity q] [(q/value q)]))
                        AngleQuantity (transit/write-handler
                                       (constantly "quantity.angle/radians")

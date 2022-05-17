@@ -54,12 +54,12 @@
 (defn inches-squared->meters-squared [inches-squared] (/ inches-squared inches-squared-per-meter-squared))
 
 (def ^:private seconds-per-minute 60.0)
-(defn minutes->seconds [minutes] (qm/* minutes seconds-per-minute))
-(defn seconds->minutes [seconds] (qm// seconds seconds-per-minute))
+(defn minutes->seconds [minutes] (* minutes seconds-per-minute))
+(defn seconds->minutes [seconds] (/ seconds seconds-per-minute))
 
 (def ^:private seconds-per-hour 3600.0)
-(defn hours->seconds [hours] (qm/* hours seconds-per-hour))
-(defn seconds->hours [seconds] (qm// seconds seconds-per-hour))
+(defn hours->seconds [hours] (* hours seconds-per-hour))
+(defn seconds->hours [seconds] (/ seconds seconds-per-hour))
 
 (def ^:private meters-per-second-per-knot 0.51444444)
 (defn knots->meters-per-second [knots] (qm/* knots meters-per-second-per-knot))

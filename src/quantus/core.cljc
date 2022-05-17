@@ -24,7 +24,7 @@
 (deftype Quantity [value-field ^clojure.lang.Keyword unit-type-field]
   Object
   (toString [^Quantity this]
-    (str "#quantity." (name unit-type-field) "/" (name (si-units unit-type-field)) " " value-field))
+    (str "#quantity." (name unit-type-field) "/" (:name (si-units unit-type-field)) " " value-field))
   #?(:cljs IEquiv)
   (#?(:clj equals :cljs -equiv) [self q]
     (or (identical? self q)
@@ -39,9 +39,9 @@
   #?@(:clj
       [clojure.lang.ILookup
        (valAt [q i]
-              (.valAt value-field i))
+              (Quantity. (.valAt value-field i) unit-type-field))
        (valAt [q i not-found]
-              (.valAt value-field i not-found))]))
+              (Quantity. (.valAt value-field i not-found) unit-type-field))]))
 
 
 #?(:clj (defmethod print-method Quantity [^Quantity q ^java.io.Writer w]
@@ -49,7 +49,7 @@
    :cljs (extend-protocol IPrintWithWriter
            quantus.core.Quantity
            (-pr-writer [obj writer _]
-             (write-all writer "#quantity." (name (unit-type obj)) "/" (name (si-units (unit-type obj))) " " (value obj)))))
+             (write-all writer "#quantity." (name (unit-type obj)) "/" (:name (si-units (unit-type obj))) " " (value obj)))))
 
 (defn unit-type-match?
   [^Quantity a ^Quantity b]
@@ -261,11 +261,11 @@
          u))))
 
 (def si-units
-  {:length 'meters
-   :area 'meters-squared
-   :time 'seconds
-   :speed 'meters-per-second
-   :acceleration 'meters-per-second-squared
-   :mass 'kilograms
-   :temperature 'kelvin
-   :unitless 'unitless})
+  {:length {:fn meters :name "meters"}
+   :area {:fn meters-squared :name "meters-squared"}
+   :time {:fn seconds :name "seconds"}
+   :speed {:fn meters-per-second :name "meters-per-second"}
+   :acceleration {:fn meters-per-second-squared :name "meters-per-second-squared"}
+   :mass {:fn kilograms :name "kilograms"}
+   :temperature {:fn kelvin :name "kelvin"}
+   :unitless {:fn unitless :name "unitless"}})

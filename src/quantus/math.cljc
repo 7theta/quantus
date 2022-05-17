@@ -317,27 +317,40 @@
   the outputs.  Instead of range, upper and lower can be provided,
   with an optional number of steps (default: 100) (see linspace)."
   ([f rng]
-   (let [] (->> rng
-                (map f)
-                (reduce +))
-        (/ (count rng))))
+   (let [sum-f (->> rng
+                    (map f)
+                    (reduce +))]
+     (/ sum-f (count rng))))
   ([f lower upper] (fn-average f lower upper 100))
   ([f lower upper n] (fn-average f (linspace lower upper n))))
 
 (defn interpolate
-  [data x-key x-val y-key]
-  (cond
-    (<= x-val (x-key (first data))) (y-key (first data))
-    (>= x-val (x-key (last data))) (y-key (last data))
-    :else
-    (let [ind (->> data
-                   (map-indexed vector)
-                   (drop-while #(< (x-key (second %)) x-val))
-                   ffirst)
-          d0 (nth data (dec ind))
-          d1 (nth data ind)
-          alpha (/ (- x-val (x-key d0))
-                   (- (x-key d1) (x-key d0)))]
-      (+ (y-key d0)
-         (* alpha (- (y-key d1)
-                     (y-key d0)))))))
+  "Given `data` that consists of a sequence of collections (typically
+  maps or tuples), this function will sort it by `x-key` and return a
+  function that given an arbitrary `x-val`, will return the
+  interpolated value for `y-key`.
+
+  If `x-key` and `y-key` are not provided, they default to `first` and
+  `second`, for working with tuples.
+
+  If `x-val` is outside the range of the x-key values for the data,
+  the outermost y value is returned."
+  ([data] (interpolate data first second))
+  ([data x-key y-key]
+   (let [sorted-data (sort-by x-key data)]
+     (fn [x-val]
+       (cond
+         (<= x-val (x-key (first sorted-data))) (y-key (first sorted-data))
+         (>= x-val (x-key (last sorted-data))) (y-key (last sorted-data))
+         :else
+         (let [ind (->> sorted-data
+                        (map-indexed vector)
+                        (drop-while #(< (x-key (second %)) x-val))
+                        ffirst)
+               d0 (nth sorted-data (dec ind))
+               d1 (nth sorted-data ind)
+               alpha (/ (- x-val (x-key d0))
+                        (- (x-key d1) (x-key d0)))]
+           (+ (y-key d0)
+              (* alpha (- (y-key d1)
+                          (y-key d0))))))))))
