@@ -24,7 +24,7 @@
 (deftype Quantity [value-field ^clojure.lang.Keyword unit-type-field]
   Object
   (toString [^Quantity this]
-    (str "#quantity/" (si-units unit-type-field) " " value-field))
+    (str "#quantity." (name unit-type-field) "/" (name (si-units unit-type-field)) " " value-field))
   #?(:cljs IEquiv)
   (#?(:clj equals :cljs -equiv) [self q]
     (or (identical? self q)
@@ -85,20 +85,32 @@
 (defn meters [v] (Quantity. v :length))
 (defn ->meters [^Quantity q] (assert-unit-type q :length) (value q))
 
-(defn feet [v] (Quantity. (u/feet->meters v) :length))
-(defn ->feet [^Quantity q] (assert-unit-type q :length) (u/meters->feet (value q)))
-
 (defn centimeters [v] (Quantity. (u/centimeters->meters v) :length))
 (defn ->centimeters [^Quantity q] (assert-unit-type q :length) (u/meters->centimeters (value q)))
 
+(defn feet [v] (Quantity. (u/feet->meters v) :length))
+(defn ->feet [^Quantity q] (assert-unit-type q :length) (u/meters->feet (value q)))
+
 (defn inches [v] (Quantity. (-> v u/inches->centimeters u/centimeters->meters) :length))
 (defn ->inches [^Quantity q] (assert-unit-type q :length) (-> q value u/meters->centimeters u/centimeters->inches))
+
+(defn meters-squared [v] (Quantity. v :area))
+(defn ->meters-squared [^Quantity q] (assert-unit-type q :area) (value q))
 
 (defn centimeters-squared [v] (Quantity. (u/centimeters-squared->meters-squared v) :area))
 (defn ->centimeters-squared [^Quantity q] (assert-unit-type q :area) (u/meters-squared->centimeters-squared (value q)))
 
 (defn inches-squared [v] (Quantity. (u/inches-squared->meters-squared v) :area))
 (defn ->inches-squared [^Quantity q] (assert-unit-type q :area) (u/meters-squared->inches-squared (value q)))
+
+(defn seconds [v] (Quantity. v :time))
+(defn ->seconds [^Quantity q] (assert-unit-type q :time) (value q))
+
+(defn minutes [v] (Quantity. (u/minutes->seconds v) :time))
+(defn ->minutes [^Quantity q] (assert-unit-type q :time) (u/seconds->minutes (value q)))
+
+(defn hours [v] (Quantity. (u/hours->seconds v) :time))
+(defn ->hours [^Quantity q] (assert-unit-type q :time) (u/seconds->hours (value q)))
 
 (defn meters-per-second [v] (Quantity. v :speed))
 (defn ->meters-per-second [^Quantity q] (assert-unit-type q :speed) (value q))
@@ -108,6 +120,9 @@
 
 (defn feet-per-minute [v] (Quantity. (u/feet-per-minute->meters-per-second v) :speed))
 (defn ->feet-per-minute [^Quantity q] (assert-unit-type q :speed) (u/meters-per-second->feet-per-minute (value q)))
+
+(defn meters-per-second-squared [v] (Quantity. v :acceleration))
+(defn ->meters-per-second-squared [^Quantity q] (assert-unit-type q :acceleration) (value q))
 
 (defn kilograms [v] (Quantity. v :mass))
 (defn ->kilograms [^Quantity q] (assert-unit-type q :mass) (value q))
@@ -123,15 +138,6 @@
 
 (defn grains [v] (Quantity. (u/grains->kilograms v) :mass))
 (defn ->grains [^Quantity q] (assert-unit-type q :mass) (u/kilograms->grains (value q)))
-
-(defn seconds [v] (Quantity. v :time))
-(defn ->seconds [^Quantity q] (assert-unit-type q :time) (value q))
-
-(defn minutes [v] (Quantity. (u/minutes->seconds v) :time))
-(defn ->minutes [^Quantity q] (assert-unit-type q :time) (u/seconds->minutes (value q)))
-
-(defn hours [v] (Quantity. (u/hours->seconds v) :time))
-(defn ->hours [^Quantity q] (assert-unit-type q :time) (u/seconds->hours (value q)))
 
 (defn kelvin [v] (Quantity. v :temperature))
 (defn ->kelvin [^Quantity q] (assert-unit-type q :temperature) (value q))
@@ -271,11 +277,11 @@
          u))))
 
 (def si-units
-  {:length "meters"
-   :time "seconds"
-   :speed "meters-per-second"
-   :acceleration "meters-per-second-squared"
-   :area "meters-squared"
-   :unitless "unitless"
-   :mass "kilograms"
-   :temperature "kelvin"})
+  {:length 'meters
+   :area 'meters-squared
+   :time 'seconds
+   :speed 'meters-per-second
+   :acceleration 'meters-per-second-squared
+   :mass 'kilograms
+   :temperature 'kelvin
+   :unitless 'unitless})
