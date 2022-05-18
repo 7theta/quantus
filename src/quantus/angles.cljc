@@ -27,6 +27,9 @@
   Object
   (toString [^AngleQuantity this]
     (str "#quantity.angle/radians " value-field))
+  #?(:cljs IHash)
+  (#?(:clj hashCode :cljs -hash) [_]
+    (hash [:angle value-field]))
   #?(:cljs IEquiv)
   (#?(:clj equals :cljs -equiv) [self q]
     (or (identical? self q)

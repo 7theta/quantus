@@ -23,8 +23,9 @@
      [d1 (gen/double* double-features)
       d2 (gen/double* double-features)]
      (doseq [[unit-a ->unit-a] units-list]
+       (is (= (unit-a d1) (unit-a d1)) "Two instances with the same value should be equal.")
+       (is (= (hash (unit-a d1)) (hash (unit-a d1))) "The hashes of two instances with the same value should be equal.")
        (is (approx= d1 (->unit-a (unit-a d1))) "Unit values should make it in and out of a Quantity.")
-
        #?(:clj (is (= (unit-a d1) (read-string (pr-str (unit-a d1)))) "Quantities should be converted to string and back."))
        (testing "Quantities should be converted to transit and back."
 

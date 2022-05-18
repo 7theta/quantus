@@ -300,25 +300,6 @@
                   (- (* (.x c1) (.y c2))
                      (* (.y c1) (.x c2)))))
 
-(defn get-x
-  "Find the x component of a coordinate."
-  [c]
-  (if (instance? CoordinateXYZ c)
-    (.x ^CoordinateXYZ c)
-    (.x ^CoordinateXY c)))
-
-(defn get-y
-  "Find the y component of a coordinate."
-  [c]
-  (if (instance? CoordinateXYZ c)
-    (.y ^CoordinateXYZ c)
-    (.y ^CoordinateXY c)))
-
-(defn get-z
-  "Find the z component of a coordinate."
-  [c]
-  (.z ^CoordinateXYZ c))
-
 (defn coordinate
   "Create a new XY or XYZ coordinate."
   ([^double x ^double y]

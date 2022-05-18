@@ -25,6 +25,9 @@
   Object
   (toString [^Quantity this]
     (str "#quantity." (name unit-type-field) "/" (:name (si-units unit-type-field)) " " value-field))
+  #?(:cljs IHash)
+  (#?(:clj hashCode :cljs -hash) [_]
+    (hash [unit-type-field value-field]))
   #?(:cljs IEquiv)
   (#?(:clj equals :cljs -equiv) [self q]
     (or (identical? self q)

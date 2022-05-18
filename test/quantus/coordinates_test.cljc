@@ -40,6 +40,8 @@
          (doseq [[unit-a ->unit-a] units-list]
            (testing "equality"
              (is (= (unit-a c12) (unit-a c12)) "Two instances with the same unit-type and value should be equal."))
+           (testing "hash equality"
+             (is (= (hash (unit-a d1)) (hash (unit-a d1))) "The hashes of two instances with the same value should be equal."))
            (testing "round trip through a unit"
              (is (approx= c12 (->unit-a (unit-a c12))) "Unit values should make it in and out of a Quantity."))
            #?(:clj (is (= (unit-a c12) (read-string (pr-str (unit-a c12)))) "Quantities should be converted to string and back."))
