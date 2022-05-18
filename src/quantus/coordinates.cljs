@@ -24,6 +24,9 @@
   Object
   (toString [_]
     (str "#quantity.coordinate/xyz [" x-field " " y-field " " z-field "]"))
+  IHash
+  (-hash [_]
+    (hash [x-field y-field z-field]))
 
   IEquiv
   (-equiv [self c]
@@ -46,6 +49,10 @@
   Object
   (toString [_]
     (str "#quantity.coordinate/xy [" x-field " " y-field "]"))
+
+  IHash
+  (-hash [_]
+    (hash [x-field y-field]))
 
   IEquiv
   (-equiv [self c]
