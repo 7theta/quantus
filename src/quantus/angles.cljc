@@ -58,6 +58,14 @@
 (defn radians [v] (AngleQuantity. (mod v two-pi)))
 (defn ->radians [^AngleQuantity aq] (assert-angle-quantity aq) (q/value aq))
 
+(defn +
+  [a b]
+  (mod (core/+ a b) two-pi))
+
+(defmethod qm/+ [AngleQuantity AngleQuantity]
+  [^AngleQuantity a ^AngleQuantity b]
+  (AngleQuantity. (+ (q/value a) (q/value b))))
+
 (defn -
   "Shortest angular distance between `a` and `b`"
   ([a] (core/- a))
@@ -69,15 +77,15 @@
 
 (defmethod qm/- [AngleQuantity AngleQuantity]
   [^AngleQuantity a ^AngleQuantity b]
-  (- a b))
+  (AngleQuantity. (- (q/value a) (q/value b))))
 
-(defn +
-  [a b]
-  (mod (core/+ a b) two-pi))
+(defmethod qm/* [#?(:clj java.lang.Number :cljs js/Number) AngleQuantity]
+  [a ^AngleQuantity b]
+  (AngleQuantity. (qm/* a (q/value b))))
 
-(defmethod qm/+ [AngleQuantity AngleQuantity]
-  [^AngleQuantity a ^AngleQuantity b]
-  (AngleQuantity. (+ (q/value a) (q/value b))))
+(defmethod qm/* [AngleQuantity #?(:clj java.lang.Number :cljs js/Number)]
+  [^AngleQuantity a b]
+  (AngleQuantity. (qm/* (q/value a) b)))
 
 (defmulti sin type)
 #?(:clj (defmethod sin Number [x] (clojure.math/sin x))
