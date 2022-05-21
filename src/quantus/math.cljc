@@ -10,7 +10,7 @@
 (ns quantus.math
   (:require [clojure.core :as core]
             #?(:clj [clojure.math]))
-  (:refer-clojure :exclude [+ - * / = not= < > <= >= zero? pos? neg? min max #?(:clj abs :cljs divide)])
+  (:refer-clojure :exclude [+ - * / = not= < > <= >= zero? pos? neg? min max abs #?(:cljs divide)])
   #?(:import [java.lang Number]))
 
 (defn arity-dispatch
