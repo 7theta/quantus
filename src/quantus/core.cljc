@@ -69,6 +69,9 @@
     (throw (ex-info "The provided quantity is not compatible with the target unit type."
                     {:quantity a :expected-unit-type type}))))
 
+(defn kilometers [v] (Quantity. (u/kilometers->meters v) :length))
+(defn ->kilometers [^Quantity q] (assert-unit-type q :length) (u/meters->kilometers (value q)))
+
 (defn meters [v] (Quantity. v :length))
 (defn ->meters [^Quantity q] (assert-unit-type q :length) (value q))
 

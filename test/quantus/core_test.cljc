@@ -16,6 +16,7 @@
 
 (def units-list [[sut/meters sut/->meters]
                  [sut/centimeters sut/->centimeters]
+                 [sut/kilometers sut/->kilometers]
                  [sut/feet sut/->feet]
                  [sut/inches sut/->inches]
                  [sut/meters-squared sut/->meters-squared]

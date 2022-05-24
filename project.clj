@@ -7,19 +7,19 @@
 ;;   the terms of this license.
 ;;   You must not remove this notice, or any others, from this software.
 
-(defproject com.7theta/quantus "0.5.0"
+(defproject com.7theta/quantus "0.6.2"
   :description "Library of handling quantities with units"
   :url "https://github.com/7theta/quantus"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[com.7theta/utilis "1.17.0"]]
+  :dependencies [[com.7theta/utilis "2.3.1"]]
   :profiles {:dev {:global-vars {*warn-on-reflection* true}
                    :dependencies [[org.clojure/clojure "1.11.1"]
-                                  [org.clojure/clojurescript "1.11.4"]
-                                  [org.clojure/tools.namespace "1.2.0"]
+                                  [org.clojure/clojurescript "1.11.54"]
+                                  [org.clojure/tools.namespace "1.3.0"]
                                   [org.clojure/test.check "1.1.1"]
                                   [com.gfredericks/test.chuck "0.2.13"]
-                                  [thheller/shadow-cljs "2.18.0"]
+                                  [thheller/shadow-cljs "2.19.0"]
                                   [criterium "0.4.6"]]
                    :source-paths ["dev" "example/src"]}}
   :clean-targets ^{:protect false} ["out" "target"]
