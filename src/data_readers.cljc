@@ -9,6 +9,7 @@
 
 {quantity.length/meters            quantus.core/meters
  quantity.length/centimeters       quantus.core/centimeters
+ quantity.length/kilometers        quantus.core/kilometers
  quantity.length/feet              quantus.core/feet
  quantity.length/inches            quantus.core/inches
  quantity.area/meters-squared      quantus.core/meters-squared

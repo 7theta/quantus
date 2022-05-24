@@ -30,8 +30,8 @@
 (defn grains->kilograms [grains] (/ grains grains-per-kilogram))
 
 (def ^:private meters-per-kilometer 1000.0)
-(defn kilometers->meters [kilometers] (* kilometers meters-per-kilometer))
-(defn meters->kilometers [meters] (/ meters meters-per-kilometer))
+(defn kilometers->meters [kilometers] (qm/* kilometers meters-per-kilometer))
+(defn meters->kilometers [meters] (qm// meters meters-per-kilometer))
 
 (def ^:private centimeters-per-meter 100.0)
 (defn meters->centimeters [meters] (qm/* meters centimeters-per-meter))

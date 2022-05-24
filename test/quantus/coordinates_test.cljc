@@ -14,6 +14,7 @@
 
 (def units-list [[identity identity]
                  [q/meters q/->meters]
+                 [q/kilometers q/->kilometers]
                  [q/feet q/->feet]
                  [q/centimeters q/->centimeters]
                  [q/inches q/->inches]

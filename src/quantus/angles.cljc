@@ -12,15 +12,15 @@
             [quantus.math :as qm]
             [clojure.core :as core]
             [clojure.pprint])
-  (:refer-clojure :exclude [+ -])
+  (:refer-clojure :exclude [+ - *])
   #?(:clj (:import [quantus.core Quantity])))
 
 (def pi #?(:clj java.lang.Math/PI :cljs js/Math.PI))
-(def two-pi (* 2 pi))
-(def three-pi (* 3 pi))
+(def two-pi (core/* 2 pi))
+(def three-pi (core/* 3 pi))
 
 (def radians-per-degree (/ pi 180))
-(defn degrees->radians [degrees] (* degrees radians-per-degree))
+(defn degrees->radians [degrees] (core/* degrees radians-per-degree))
 (defn radians->degrees [radians] (/ radians radians-per-degree))
 
 (deftype AngleQuantity [value-field]
@@ -79,13 +79,17 @@
   [^AngleQuantity a ^AngleQuantity b]
   (AngleQuantity. (- (q/value a) (q/value b))))
 
+(defn *
+  [a b]
+  (mod (core/* a b) two-pi))
+
 (defmethod qm/* [#?(:clj java.lang.Number :cljs js/Number) AngleQuantity]
   [a ^AngleQuantity b]
-  (AngleQuantity. (qm/* a (q/value b))))
+  (AngleQuantity. (* a (q/value b))))
 
 (defmethod qm/* [AngleQuantity #?(:clj java.lang.Number :cljs js/Number)]
   [^AngleQuantity a b]
-  (AngleQuantity. (qm/* (q/value a) b)))
+  (AngleQuantity. (* (q/value a) b)))
 
 (defmulti sin type)
 #?(:clj (defmethod sin Number [x] (clojure.math/sin x))
