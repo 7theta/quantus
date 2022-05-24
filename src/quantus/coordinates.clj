@@ -138,10 +138,12 @@
     (case i
       (0 :x) (CoordinateXY. v y-field)
       (1 :y) (CoordinateXY. x-field v)
+      (2 :z) (CoordinateXYZ. x-field y-field v)
       (when (number? i)
         (case (int i)
           0 (CoordinateXY. v y-field)
-          1 (CoordinateXY. x-field v)))))
+          1 (CoordinateXY. x-field v)
+          2 (CoordinateXYZ. x-field y-field v)))))
 
   clojure.lang.IFn
   (invoke [c i]
