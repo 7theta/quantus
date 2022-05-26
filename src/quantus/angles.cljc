@@ -41,7 +41,11 @@
   (value [_] value-field))
 
 #?(:clj (defmethod print-method AngleQuantity [^AngleQuantity q ^java.io.Writer w]
-          (.write w (.toString q))))
+          (.write w (.toString q)))
+   :cljs (extend-protocol IPrintWithWriter
+           quantus.core.Quantity
+           (-pr-writer [obj writer _]
+             (write-all writer "#quantity.angle/radians " (value obj)))))
 
 (defn parse-angle
   [value]
@@ -66,6 +70,10 @@
   [^AngleQuantity a ^AngleQuantity b]
   (AngleQuantity. (+ (q/value a) (q/value b))))
 
+(defmethod qm/+ [AngleQuantity #?(:clj java.lang.Number :cljs js/Number)]
+  [^AngleQuantity a b]
+  (AngleQuantity. (+ (q/value a) b)))
+
 (defn -
   "Shortest angular distance between `a` and `b`"
   ([a] (core/- a))
@@ -78,6 +86,10 @@
 (defmethod qm/- [AngleQuantity AngleQuantity]
   [^AngleQuantity a ^AngleQuantity b]
   (AngleQuantity. (- (q/value a) (q/value b))))
+
+(defmethod qm/- AngleQuantity
+  [^AngleQuantity a]
+  (AngleQuantity. (- (q/value a))))
 
 (defn *
   [a b]
@@ -114,6 +126,14 @@
 (defmethod tan AngleQuantity
   [^AngleQuantity a]
   (tan (q/value a)))
+
+(defmulti asin type)
+#?(:clj (defmethod asin Number [x] (clojure.math/asin x))
+   :cljs (defmethod asin js/Number [x] (js/Math.asin x)))
+
+(defmethod asin Quantity
+  [^Quantity a]
+  (AngleQuantity. (asin (q/value a))))
 
 (defmulti atan2 (fn [y x] [(type y) (type x)]))
 #?(:clj (defmethod atan2 [Number Number] [y x] (clojure.math/atan2 y x))
