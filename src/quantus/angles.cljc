@@ -43,9 +43,9 @@
 #?(:clj (defmethod print-method AngleQuantity [^AngleQuantity q ^java.io.Writer w]
           (.write w (.toString q)))
    :cljs (extend-protocol IPrintWithWriter
-           quantus.core.Quantity
+           quantus.angles.AngleQuantity
            (-pr-writer [obj writer _]
-             (write-all writer "#quantity.angle/radians " (value obj)))))
+             (write-all writer "#quantity.angle/radians " (q/value obj)))))
 
 (defn parse-angle
   [value]
