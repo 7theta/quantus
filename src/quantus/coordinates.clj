@@ -418,6 +418,10 @@
   [^CoordinateXY c]
   (qa/atan2 (.y c) (.x c)))
 
+(defmethod angle clojure.lang.PersistentVector
+  [v]
+  (qa/atan2 (nth v 0) (nth v 1)))
+
 ;;; XYZ
 
 (defmulti xyz

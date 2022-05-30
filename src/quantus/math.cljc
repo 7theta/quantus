@@ -158,6 +158,24 @@
           (/ (abs (numerator x))
              (abs (denominator x)))))
 
+;; Square Root
+
+(defmulti sqrt
+  "Return the square root of `x`."
+  (fn [x & more] (type x)))
+
+#?(:clj (defmethod sqrt Number [x] (clojure.math/sqrt x))
+   :cljs (defmethod sqrt js/Number [x] (js/Math.sqrt x)))
+
+;; Power
+
+(defmulti pow
+  "Return the power of `x`."
+  (fn [x p & more] [(type x) (type p)]))
+
+#?(:clj (defmethod pow [Number Number] [x p] (clojure.math/pow x p))
+   :cljs (defmethod pow [js/Number js/Number] [x p] (js/Math.pow x p)))
+
 ;; Round
 
 (defmulti round
