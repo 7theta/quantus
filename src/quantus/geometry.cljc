@@ -17,8 +17,8 @@
   ;; https://gist.github.com/jupdike/bfe5eb23d1c395d8a0a1a4ddd94882ac
   (let [center-dx (- x1 x2)
         center-dy (- y1 y2)
-        R (Math/sqrt (+ (* center-dx center-dx)
-                        (* center-dy center-dy)))]
+        R (qm/sqrt (+ (* center-dx center-dx)
+                      (* center-dy center-dy)))]
     #_#_if-not (<= (Math/abs (- r1 r2))
                    R
                    (+ r1 r2))
@@ -26,7 +26,7 @@
       (> R (+ r1 r2))
       :no-intersection
 
-      (< R (Math/abs ^double (- r1 r2)))
+      (< R (qm/abs (- r1 r2)))
       :full-overlap
 
       :else
@@ -125,8 +125,10 @@
      (cond
        (zero? d) :no-intersection
 
-       (and (<= 0 tn d)
-            (<= 0 un d))
+       (or (and (<= 0 tn d)
+                (<= 0 un d))
+           (and (>= 0 tn d)
+                (>= 0 un d)))
        (let [t (/ tn d)
              u (/ un d)]
          [(+ x1 (* t (- x2 x1)))

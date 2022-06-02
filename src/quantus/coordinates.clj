@@ -420,6 +420,22 @@
 
 (defmethod angle clojure.lang.PersistentVector
   [v]
+  (qa/atan2 (nth v 1) (nth v 0)))
+
+(defmulti bearing
+  "Returns the bearing of a coordinateXY, measure clockwise from N."
+  type)
+
+(defmethod bearing Quantity
+  [^Quantity q]
+  (qa/->AngleQuantity (bearing (q/value q))))
+
+(defmethod bearing CoordinateXY
+  [^CoordinateXY c]
+  (qa/atan2 (.x c) (.y c)))
+
+(defmethod bearing clojure.lang.PersistentVector
+  [v]
   (qa/atan2 (nth v 0) (nth v 1)))
 
 ;;; XYZ
