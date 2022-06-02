@@ -239,6 +239,9 @@
   (dot [c1 c2] "Find the dot-product of two coordinates.")
   (magnitude [c] "The magnitude (length) of the coordinate."))
 
+(defn- magnitude-quantity [^Quantity q]
+  (Quantity. (magnitude (q/value q)) (q/unit-type q)))
+
 (extend-protocol Coordinate
   CoordinateXY
   (add* [c1 c2] (add-xy c1 c2))
@@ -255,7 +258,9 @@
   (div* [c1 c2] (div-xyz c1 c2))
   (scale [c f] (scale-xyz c f))
   (dot [c1 c2] (dot-xyz c1 c2))
-  (magnitude [c] (magnitude-xyz c)))
+  (magnitude [c] (magnitude-xyz c))
+  Quantity
+  (magnitude [q] (magnitude-quantity q)))
 
 (defn +
   "Return the sum of one or more coordinates."
@@ -352,6 +357,12 @@
   [x y]
   (CoordinateXY. x y))
 
+(defmethod xy Quantity
+  [^Quantity x]
+  ;;(assert (instance? Coordinate (q/value x)))
+  (q/->Quantity (CoordinateXY. (:x (q/value x)) (:y (q/value x)))
+                (q/unit-type x)))
+
 (defmethod xy [Quantity Quantity]
   [^Quantity x ^Quantity y]
   (q/assert-unit-type-match x y)
@@ -406,6 +417,26 @@
 (defmethod angle CoordinateXY
   [^CoordinateXY c]
   (qa/atan2 (.y c) (.x c)))
+
+(defmethod angle clojure.lang.PersistentVector
+  [v]
+  (qa/atan2 (nth v 1) (nth v 0)))
+
+(defmulti bearing
+  "Returns the bearing of a coordinateXY, measure clockwise from N."
+  type)
+
+(defmethod bearing Quantity
+  [^Quantity q]
+  (qa/->AngleQuantity (bearing (q/value q))))
+
+(defmethod bearing CoordinateXY
+  [^CoordinateXY c]
+  (qa/atan2 (.x c) (.y c)))
+
+(defmethod bearing clojure.lang.PersistentVector
+  [v]
+  (qa/atan2 (nth v 0) (nth v 1)))
 
 ;;; XYZ
 
