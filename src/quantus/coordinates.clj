@@ -242,6 +242,16 @@
 (defn- magnitude-quantity [^Quantity q]
   (Quantity. (magnitude (q/value q)) (q/unit-type q)))
 
+(defn- scale-quantity [^Quantity q f]
+  (if (instance? Quantity f)
+    (if-let [new-unit-type (get-in q/allowed-operations [:multiplications [(q/unit-type q) (q/unit-type f)]])]
+      (Quantity. (scale (q/value q)
+                        (q/value f))
+                 new-unit-type)
+      (throw (ex-info "Scaling a Quantity coordinate by a Quantity must result in a known unit-type" {:q q :f f})))
+    (Quantity. (scale (q/value q) f)
+               (q/unit-type q))))
+
 (extend-protocol Coordinate
   CoordinateXY
   (add* [c1 c2] (add-xy c1 c2))
@@ -260,7 +270,8 @@
   (dot [c1 c2] (dot-xyz c1 c2))
   (magnitude [c] (magnitude-xyz c))
   Quantity
-  (magnitude [q] (magnitude-quantity q)))
+  (magnitude [q] (magnitude-quantity q))
+  (scale [q f] (scale-quantity q f)))
 
 (defn +
   "Return the sum of one or more coordinates."
@@ -314,13 +325,15 @@
   ([^double x ^double y ^double z]
    (CoordinateXYZ. x y z)))
 
+(declare xy xyz)
+
 (defn ->xy
   [c]
-  (CoordinateXY. (:x c) (:y c)))
+  (xy (:x c) (:y c)))
 
 (defn ->xyz
   [c]
-  (CoordinateXYZ. (:x c) (:y c) (:z c)))
+  (xyz (:x c) (:y c) (:z c)))
 
 (defn ->map
   [c]

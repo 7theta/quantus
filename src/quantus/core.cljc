@@ -179,6 +179,12 @@
   [^Quantity a b]
   (Quantity. (qm/divide (value a) b) (unit-type a)))
 
+(defmethod qm/divide [#?(:clj java.lang.Number :cljs js/Number) Quantity]
+  [#?@(:clj [^java.lang.Number a] :cljs [^js/Number a]) ^Quantity b]
+  (if-let [new-unit-type (get-in allowed-operations [:divisions [:unitless (unit-type b)]])]
+    (Quantity. (qm/divide a (value b)) new-unit-type)
+    (throw (ex-info "Dividing a number by a Quantity must result in a known unit-type" {:a a :b b}))))
+
 (defmethod qm/abs Quantity
   [^Quantity a]
   (Quantity. (qm/abs (value a)) (unit-type a)))
@@ -260,6 +266,8 @@
                  u
                  types)))
       (division :frequency :unitless :time)
+      (division :inverse-length :unitless :length)
+      (multiplication :speed :length :frequency)
       ((fn check-for-reserved-unit-types
          [{:keys [types] :as u}]
          (when-let [used-reserved-types (seq (clojure.set/intersection types reserved-types))]
