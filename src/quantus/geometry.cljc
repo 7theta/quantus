@@ -162,16 +162,18 @@
                                  (qm/abs (distance-to-line-2points [x y] [x1 y1] [x2 y2]))))
                           (reduce qm/max)))
          thetas (mapv qa/degrees (qm/linspace -90 90 17))]
+     #_(println "VVV" direction (first thetas))
      (concat (mapv (fn [dir]
+                     #_(println "BVB" (qc/polar->xy (qm/+ radius deviation) (qm/+ dir direction)) (qc/->xy p1))
                      (->> dir
-                          (qa/+ direction)
+                          (qm/+ direction)
                           (qc/polar->xy (qm/+ radius deviation))
-                          (qc/+ (qc/->xy p1))))
+                          (qm/+ (qc/->xy p1))))
                    thetas)
              (mapv (fn [dir]
                      (->> dir
-                          (qa/+ direction)
-                          (qa/+ (qa/degrees 180))
+                          (qm/+ direction)
+                          (qm/+ (qa/degrees 180))
                           (qc/polar->xy (qm/+ radius deviation))
-                          (qc/+ (qc/->xy p2))))
+                          (qm/+ (qc/->xy p2))))
                    thetas)))))
