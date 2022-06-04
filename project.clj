@@ -7,7 +7,7 @@
 ;;   the terms of this license.
 ;;   You must not remove this notice, or any others, from this software.
 
-(defproject com.7theta/quantus "0.7.0"
+(defproject com.7theta/quantus "0.7.1"
   :description "Library of handling quantities with units"
   :url "https://github.com/7theta/quantus"
   :license {:name "Eclipse Public License"

@@ -80,12 +80,13 @@
   ([[x y] [x1 y1] [x2 y2]]
    (distance-to-line-2points x y x1 y1 x2 y2))
   ([x y x1 y1 x2 y2]
-   (/ (- (* (- x2 x1)
-            (- y1 y))
-         (* (- x1 x)
-            (- y2 y1)))
-      (qm/sqrt (+ (qm/pow (- x2 x1) 2)
-                  (qm/pow (- y2 y1) 2))))))
+   (qm// (qm/- (qm/* (qm/- x2 x1)
+                     (qm/- y1 y))
+               (qm/* (qm/- x1 x)
+                     (qm/- y2 y1)))
+         (qc/magnitude (qm/- (qc/xy x1 y1) (qc/xy x2 y2)))
+         #_(qm/sqrt (qm/+ (qm/pow (qm/- x2 x1) 2)
+                          (qm/pow (qm/- y2 y1) 2))))))
 
 (defn line-intersection
   "Given 4 points in 2D, calculates the point where a line through
@@ -147,7 +148,7 @@
   ([points radius]
    (let [{x1 :x y1 :y} (first points)
          {x2 :x y2 :y} (last points)
-         direction (qc/angle [(- x1 x2) (- y1 y2)])]
+         direction (qc/angle [(qm/- x1 x2) (qm/- y1 y2)])]
      (enclosing-obround points radius direction)))
   ([points radius direction]
    (let [p1 (first points)
@@ -159,18 +160,20 @@
                      (->> points
                           (map (fn [{x :x y :y}]
                                  (qm/abs (distance-to-line-2points [x y] [x1 y1] [x2 y2]))))
-                          (reduce max)))
+                          (reduce qm/max)))
          thetas (mapv qa/degrees (qm/linspace -90 90 17))]
+     #_(println "VVV" direction (first thetas))
      (concat (mapv (fn [dir]
+                     #_(println "BVB" (qc/polar->xy (qm/+ radius deviation) (qm/+ dir direction)) (qc/->xy p1))
                      (->> dir
-                          (qa/+ direction)
-                          (qc/polar->xy (+ radius deviation))
-                          (qc/+ (qc/->xy p1))))
+                          (qm/+ direction)
+                          (qc/polar->xy (qm/+ radius deviation))
+                          (qm/+ (qc/->xy p1))))
                    thetas)
              (mapv (fn [dir]
                      (->> dir
-                          (qa/+ direction)
-                          (qa/+ 180)
-                          (qc/polar->xy (+ radius deviation))
-                          (qc/+ (qc/->xy p2))))
+                          (qm/+ direction)
+                          (qm/+ (qa/degrees 180))
+                          (qc/polar->xy (qm/+ radius deviation))
+                          (qm/+ (qc/->xy p2))))
                    thetas)))))
