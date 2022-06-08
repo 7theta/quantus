@@ -1,7 +1,8 @@
 (ns quantus.geometry
   (:require [quantus.math :as qm]
             [quantus.angles :as qa]
-            [quantus.coordinates :as qc]))
+            [quantus.coordinates :as qc]
+            [quantus.core :as q]))
 
 ;; TODO: tests!
 
@@ -156,7 +157,7 @@
          {x1 :x y1 :y} p1
          {x2 :x y2 :y} p2
          deviation (if (= p1 p2)
-                     0
+                     (q/as 0 p1)
                      (->> points
                           (map (fn [{x :x y :y}]
                                  (qm/abs (distance-to-line-2points [x y] [x1 y1] [x2 y2]))))

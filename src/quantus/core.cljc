@@ -233,6 +233,10 @@
   (assert-unit-type-match a b)
   (qm/<= (value a) (value b)))
 
+(defn as
+  [new-value ^Quantity quantity]
+  (Quantity. new-value (unit-type quantity)))
+
 ;;; Private
 (defn- multiplication
   [combos new-combo unit-1 unit-2]
