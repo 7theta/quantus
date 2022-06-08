@@ -255,7 +255,7 @@
 (def ^:private reserved-types #{:angle})
 
 (def allowed-operations
-  (-> {:multiplications {} :divisions {} :types #{}}
+  (-> {:multiplications {} :divisions {} :types #{:mass :temperature :unitless}}
       (multiplication :area :length :length)
       (division :speed :length :time)
       (division :acceleration :speed :time)
