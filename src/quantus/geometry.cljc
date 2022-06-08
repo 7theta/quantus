@@ -148,7 +148,7 @@
   ([points radius]
    (let [{x1 :x y1 :y} (first points)
          {x2 :x y2 :y} (last points)
-         direction (qc/angle [(qm/- x1 x2) (qm/- y1 y2)])]
+         direction (qc/bearing [(qm/- x1 x2) (qm/- y1 y2)])]
      (enclosing-obround points radius direction)))
   ([points radius direction]
    (let [p1 (first points)
@@ -162,9 +162,7 @@
                                  (qm/abs (distance-to-line-2points [x y] [x1 y1] [x2 y2]))))
                           (reduce qm/max)))
          thetas (mapv qa/degrees (qm/linspace -90 90 17))]
-     #_(println "VVV" direction (first thetas))
      (concat (mapv (fn [dir]
-                     #_(println "BVB" (qc/polar->xy (qm/+ radius deviation) (qm/+ dir direction)) (qc/->xy p1))
                      (->> dir
                           (qm/+ direction)
                           (qc/polar->xy (qm/+ radius deviation))
