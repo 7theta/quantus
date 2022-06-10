@@ -69,83 +69,105 @@
     (throw (ex-info "The provided quantity is not compatible with the target unit type."
                     {:quantity a :expected-unit-type type}))))
 
+#?(:clj
+   (defn round-maybe
+     [v]
+     (if (number? v)
+       (let [r (double (clojure.math/round v))]
+         (if (or (= (clojure.math/next-down v) r)
+                 (= (clojure.math/next-up v) r))
+           r
+           v))
+       v))
+   :cljs
+   (defn round-maybe
+     [v]
+     (if (number? v)
+       (let [r (Math/round v)]
+         (if (< (/ (qm/abs (- r v))
+                   (/ (+ (qm/abs r) (qm/abs v)) 2.0))
+                1E-10)
+           r
+           v))
+       v)))
+
 (defn kilometers [v] (Quantity. (u/kilometers->meters v) :length))
-(defn ->kilometers [^Quantity q] (assert-unit-type q :length) (u/meters->kilometers (value q)))
+(defn ->kilometers [^Quantity q] (assert-unit-type q :length) (round-maybe (u/meters->kilometers (value q))))
 
 (defn meters [v] (Quantity. v :length))
-(defn ->meters [^Quantity q] (assert-unit-type q :length) (value q))
+(defn ->meters [^Quantity q] (assert-unit-type q :length) (round-maybe (value q)))
 
 (defn centimeters [v] (Quantity. (u/centimeters->meters v) :length))
-(defn ->centimeters [^Quantity q] (assert-unit-type q :length) (u/meters->centimeters (value q)))
+(defn ->centimeters [^Quantity q] (assert-unit-type q :length) (round-maybe (u/meters->centimeters (value q))))
 
 (defn feet [v] (Quantity. (u/feet->meters v) :length))
-(defn ->feet [^Quantity q] (assert-unit-type q :length) (u/meters->feet (value q)))
+(defn ->feet [^Quantity q] (assert-unit-type q :length) (round-maybe (u/meters->feet (value q))))
 
 (defn inches [v] (Quantity. (-> v u/inches->centimeters u/centimeters->meters) :length))
-(defn ->inches [^Quantity q] (assert-unit-type q :length) (-> q value u/meters->centimeters u/centimeters->inches))
+(defn ->inches [^Quantity q] (assert-unit-type q :length) (round-maybe (-> q value u/meters->centimeters u/centimeters->inches)))
 
 (defn meters-squared [v] (Quantity. v :area))
-(defn ->meters-squared [^Quantity q] (assert-unit-type q :area) (value q))
+(defn ->meters-squared [^Quantity q] (assert-unit-type q :area) (round-maybe (value q)))
 
 (defn centimeters-squared [v] (Quantity. (u/centimeters-squared->meters-squared v) :area))
-(defn ->centimeters-squared [^Quantity q] (assert-unit-type q :area) (u/meters-squared->centimeters-squared (value q)))
+(defn ->centimeters-squared [^Quantity q] (assert-unit-type q :area) (round-maybe (u/meters-squared->centimeters-squared (value q))))
 
 (defn inches-squared [v] (Quantity. (u/inches-squared->meters-squared v) :area))
-(defn ->inches-squared [^Quantity q] (assert-unit-type q :area) (u/meters-squared->inches-squared (value q)))
+(defn ->inches-squared [^Quantity q] (assert-unit-type q :area) (round-maybe (u/meters-squared->inches-squared (value q))))
 
 (defn seconds [v] (Quantity. v :time))
-(defn ->seconds [^Quantity q] (assert-unit-type q :time) (value q))
+(defn ->seconds [^Quantity q] (assert-unit-type q :time) (round-maybe (value q)))
 
 (defn minutes [v] (Quantity. (u/minutes->seconds v) :time))
-(defn ->minutes [^Quantity q] (assert-unit-type q :time) (u/seconds->minutes (value q)))
+(defn ->minutes [^Quantity q] (assert-unit-type q :time) (round-maybe (u/seconds->minutes (value q))))
 
 (defn hours [v] (Quantity. (u/hours->seconds v) :time))
-(defn ->hours [^Quantity q] (assert-unit-type q :time) (u/seconds->hours (value q)))
+(defn ->hours [^Quantity q] (assert-unit-type q :time) (round-maybe (u/seconds->hours (value q))))
 
 (defn meters-per-second [v] (Quantity. v :speed))
-(defn ->meters-per-second [^Quantity q] (assert-unit-type q :speed) (value q))
+(defn ->meters-per-second [^Quantity q] (assert-unit-type q :speed) (round-maybe (value q)))
 
 (defn kilometers-per-hour [v] (Quantity. (u/kilometers-per-hour->meters-per-second v) :speed))
-(defn ->kilometers-per-hour [^Quantity q] (assert-unit-type q :speed) (u/meters-per-second->kilometers-per-hour (value q)))
+(defn ->kilometers-per-hour [^Quantity q] (assert-unit-type q :speed) (round-maybe (u/meters-per-second->kilometers-per-hour (value q))))
 
 (defn knots [v] (Quantity. (u/knots->meters-per-second v) :speed))
-(defn ->knots [^Quantity q] (assert-unit-type q :speed) (u/meters-per-second->knots (value q)))
+(defn ->knots [^Quantity q] (assert-unit-type q :speed) (round-maybe (u/meters-per-second->knots (value q))))
 
 (defn feet-per-minute [v] (Quantity. (u/feet-per-minute->meters-per-second v) :speed))
-(defn ->feet-per-minute [^Quantity q] (assert-unit-type q :speed) (u/meters-per-second->feet-per-minute (value q)))
+(defn ->feet-per-minute [^Quantity q] (assert-unit-type q :speed) (round-maybe (u/meters-per-second->feet-per-minute (value q))))
 
 (defn meters-per-second-squared [v] (Quantity. v :acceleration))
-(defn ->meters-per-second-squared [^Quantity q] (assert-unit-type q :acceleration) (value q))
+(defn ->meters-per-second-squared [^Quantity q] (assert-unit-type q :acceleration) (round-maybe (value q)))
 
 (defn kilograms [v] (Quantity. v :mass))
-(defn ->kilograms [^Quantity q] (assert-unit-type q :mass) (value q))
+(defn ->kilograms [^Quantity q] (assert-unit-type q :mass) (round-maybe (value q)))
 
 (defn grams [v] (Quantity. (u/grams->kilograms v) :mass))
-(defn ->grams [^Quantity q] (assert-unit-type q :mass) (u/kilograms->grams (value q)))
+(defn ->grams [^Quantity q] (assert-unit-type q :mass) (round-maybe (u/kilograms->grams (value q))))
 
 (defn pounds [v] (Quantity. (u/pounds->kilograms v) :mass))
-(defn ->pounds [^Quantity q] (assert-unit-type q :mass) (u/kilograms->pounds (value q)))
+(defn ->pounds [^Quantity q] (assert-unit-type q :mass) (round-maybe (u/kilograms->pounds (value q))))
 
 (defn ounces [v] (Quantity. (u/ounces->kilograms v) :mass))
-(defn ->ounces [^Quantity q] (assert-unit-type q :mass) (u/kilograms->ounces (value q)))
+(defn ->ounces [^Quantity q] (assert-unit-type q :mass) (round-maybe (u/kilograms->ounces (value q))))
 
 (defn grains [v] (Quantity. (u/grains->kilograms v) :mass))
-(defn ->grains [^Quantity q] (assert-unit-type q :mass) (u/kilograms->grains (value q)))
+(defn ->grains [^Quantity q] (assert-unit-type q :mass) (round-maybe (u/kilograms->grains (value q))))
 
 (defn kelvin [v] (Quantity. v :temperature))
-(defn ->kelvin [^Quantity q] (assert-unit-type q :temperature) (value q))
+(defn ->kelvin [^Quantity q] (assert-unit-type q :temperature) (round-maybe (value q)))
 
 (defn celsius [v] (Quantity. (u/celsius->kelvin v) :temperature))
-(defn ->celsius [^Quantity q] (assert-unit-type q :temperature) (u/kelvin->celsius (value q)))
+(defn ->celsius [^Quantity q] (assert-unit-type q :temperature) (round-maybe (u/kelvin->celsius (value q))))
 
 (defn rankine [v] (Quantity. (u/rankine->kelvin v) :temperature))
-(defn ->rankine [^Quantity q] (assert-unit-type q :temperature) (u/kelvin->rankine (value q)))
+(defn ->rankine [^Quantity q] (assert-unit-type q :temperature) (round-maybe (u/kelvin->rankine (value q))))
 
 (defn fahrenheit [v] (Quantity. (u/fahrenheit->kelvin v) :temperature))
-(defn ->fahrenheit [^Quantity q] (assert-unit-type q :temperature) (u/kelvin->fahrenheit (value q)))
+(defn ->fahrenheit [^Quantity q] (assert-unit-type q :temperature) (round-maybe (u/kelvin->fahrenheit (value q))))
 
 (defn unitless [v] (Quantity. v :unitless))
-(defn ->unitless [^Quantity q] (assert-unit-type q :unitless) (value q))
+(defn ->unitless [^Quantity q] (assert-unit-type q :unitless) (round-maybe (value q)))
 
 (defmethod qm/+ [Quantity Quantity]
   [^Quantity a ^Quantity b]

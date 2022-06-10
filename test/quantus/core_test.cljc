@@ -83,12 +83,14 @@
                                    unit-a
                                    ->unit-b
                                    unit-b
-                                   ->unit-a)))
+                                   ->unit-a))
+                   (str {:unit-a unit-a :unit-b unit-b}))
                (is (approx= d1 (-> d1
                                    unit-b
                                    ->unit-a
                                    unit-a
-                                   ->unit-b)))
+                                   ->unit-b))
+                   (str {:unit-a unit-a :unit-b unit-b}))
                (when-not (or (#{sut/celsius sut/fahrenheit} unit-a)
                              (#{sut/celsius sut/fahrenheit} unit-b))
                  (let [ua1 (unit-a d1)
