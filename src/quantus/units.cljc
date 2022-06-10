@@ -70,6 +70,11 @@
 (defn meters-per-second->knots [meters-per-second]
   (qm// meters-per-second meters-per-second-per-knot))
 
+(def ^:private meters-per-second-per-kilometer-per-hour (/ seconds-per-hour meters-per-kilometer))
+(defn kilometers-per-hour->meters-per-second [kilometers-per-hour] (qm// kilometers-per-hour meters-per-second-per-kilometer-per-hour))
+(defn meters-per-second->kilometers-per-hour [meters-per-second]
+  (qm/* meters-per-second meters-per-second-per-kilometer-per-hour))
+
 (def ^:private meters-per-second-per-foot-per-minute (/ meters-per-foot seconds-per-minute))
 (defn feet-per-minute->meters-per-second [feet-per-minute]
   (qm/* feet-per-minute meters-per-second-per-foot-per-minute))

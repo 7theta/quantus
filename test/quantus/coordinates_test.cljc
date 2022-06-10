@@ -19,6 +19,7 @@
                  [q/centimeters q/->centimeters]
                  [q/inches q/->inches]
                  [q/meters-per-second q/->meters-per-second]
+                 [q/kilometers-per-hour q/->kilometers-per-hour]
                  [q/knots q/->knots]
                  [q/feet-per-minute q/->feet-per-minute]
                  [q/unitless q/->unitless]])

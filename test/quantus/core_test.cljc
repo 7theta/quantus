@@ -26,6 +26,7 @@
                  [sut/minutes sut/->minutes]
                  [sut/hours sut/->hours]
                  [sut/meters-per-second sut/->meters-per-second]
+                 [sut/kilometers-per-hour sut/->kilometers-per-hour]
                  [sut/knots sut/->knots]
                  [sut/feet-per-minute sut/->feet-per-minute]
                  [sut/meters-per-second-squared sut/->meters-per-second-squared]

@@ -105,6 +105,9 @@
 (defn meters-per-second [v] (Quantity. v :speed))
 (defn ->meters-per-second [^Quantity q] (assert-unit-type q :speed) (value q))
 
+(defn kilometers-per-hour [v] (Quantity. (u/kilometers-per-hour->meters-per-second v) :speed))
+(defn ->kilometers-per-hour [^Quantity q] (assert-unit-type q :speed) (u/meters-per-second->kilometers-per-hour (value q)))
+
 (defn knots [v] (Quantity. (u/knots->meters-per-second v) :speed))
 (defn ->knots [^Quantity q] (assert-unit-type q :speed) (u/meters-per-second->knots (value q)))
 

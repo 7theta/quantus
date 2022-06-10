@@ -19,6 +19,7 @@
  quantity.time/minutes             quantus.core/minutes
  quantity.time/hours               quantus.core/hours
  quantity.speed/meters-per-second  quantus.core/meters-per-second
+ quantity.speed/kilometers-per-hour quantus.core/kilometers-per-hour
  quantity.speed/knots              quantus.core/knots
  quantity.speed/feet-per-minutes   quantus.core/feet-per-minutes
  quantity.acceleration/meters-per-second-squared  quantus.core/meters-per-second-squared
