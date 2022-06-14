@@ -99,6 +99,21 @@
   ([x y] (divide x y)) ; binary
   ([x y & more] (apply divide x y more)))
 
+;; Zero-value
+
+(defmulti zero-value
+  "Returns the same type or unit-type with a value of zero."
+  arity-dispatch)
+
+#?(:cljs (defmethod zero-value js/Number [_] 0))
+
+#?(:clj (defmethod zero-value java.lang.Double [_] 0.0))
+#?(:clj (defmethod zero-value java.lang.Float [_] (float 0)))
+#?(:clj (defmethod zero-value java.lang.Integer [_] (int 0)))
+#?(:clj (defmethod zero-value java.lang.Long [_] 0))
+
+(defmethod zero-value :default [x] (* x 0))
+
 ;; zero?
 
 (defmulti zero?

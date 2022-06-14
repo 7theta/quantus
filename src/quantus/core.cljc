@@ -91,6 +91,10 @@
            v))
        v)))
 
+(defmethod qm/zero-value Quantity
+  [^Quantity quantity]
+  (Quantity. 0 (unit-type quantity)))
+
 (defn kilometers [v] (Quantity. (u/kilometers->meters v) :length))
 (defn ->kilometers [^Quantity q] (assert-unit-type q :length) (round-maybe (u/meters->kilometers (value q))))
 
@@ -257,10 +261,6 @@
   [^Quantity a ^Quantity b]
   (assert-unit-type-match a b)
   (qm/<= (value a) (value b)))
-
-(defn as
-  [new-value ^Quantity quantity]
-  (Quantity. new-value (unit-type quantity)))
 
 ;;; Private
 (defn- multiplication
