@@ -56,10 +56,10 @@
   (when-not (instance? AngleQuantity aq)
     (throw (ex-info "Angle Quantity expected" {:aq aq}))))
 
-(defn degrees [v] (qm/* (AngleQuantity. (mod (degrees->radians v) two-pi)) 1))
+(defn degrees [v] (AngleQuantity. (mod (degrees->radians v) two-pi)))
 (defn ->degrees [^AngleQuantity aq] (assert-angle-quantity aq) (radians->degrees (q/value aq)))
 
-(defn radians [v] (qm/* (AngleQuantity. (mod v two-pi)) 1))
+(defn radians [v] (AngleQuantity. (mod v two-pi)))
 (defn ->radians [^AngleQuantity aq] (assert-angle-quantity aq) (q/value aq))
 
 (defn +
