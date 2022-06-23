@@ -24,7 +24,7 @@
 (deftype Quantity [value-field ^clojure.lang.Keyword unit-type-field]
   Object
   (toString [^Quantity this]
-    (str "#quantity." (name unit-type-field) "/" (:name (si-units unit-type-field)) " " value-field))
+    (str "#quantity." (name unit-type-field) "/" (:name (si-units unit-type-field)) " " (pr-str value-field)))
   #?(:cljs IHash)
   (#?(:clj hashCode :cljs -hash) [_]
     (hash [unit-type-field value-field]))
@@ -42,17 +42,16 @@
   #?@(:clj
       [clojure.lang.ILookup
        (valAt [q i]
-              (Quantity. (.valAt value-field i) unit-type-field))
+              (Quantity. (.valAt ^clojure.lang.ILookup value-field i) unit-type-field))
        (valAt [q i not-found]
-              (Quantity. (.valAt value-field i not-found) unit-type-field))]))
-
+              (Quantity. (.valAt ^clojure.lang.ILookup value-field i not-found) unit-type-field))]))
 
 #?(:clj (defmethod print-method Quantity [^Quantity q ^java.io.Writer w]
           (.write w (.toString q)))
    :cljs (extend-protocol IPrintWithWriter
            quantus.core.Quantity
            (-pr-writer [obj writer _]
-             (write-all writer "#quantity." (name (unit-type obj)) "/" (:name (si-units (unit-type obj))) " " (value obj)))))
+             (write-all writer "#quantity." (name (unit-type obj)) "/" (:name (si-units (unit-type obj))) " " (pr-str (value obj))))))
 
 (defn unit-type-match?
   [^Quantity a ^Quantity b]
@@ -98,7 +97,7 @@
 (defn kilometers [v] (Quantity. (u/kilometers->meters v) :length))
 (defn ->kilometers [^Quantity q] (assert-unit-type q :length) (round-maybe (u/meters->kilometers (value q))))
 
-(defn meters [v] (Quantity. v :length))
+(defn meters [v] (qm/* (Quantity. v :length) 1))
 (defn ->meters [^Quantity q] (assert-unit-type q :length) (round-maybe (value q)))
 
 (defn centimeters [v] (Quantity. (u/centimeters->meters v) :length))
@@ -110,7 +109,7 @@
 (defn inches [v] (Quantity. (-> v u/inches->centimeters u/centimeters->meters) :length))
 (defn ->inches [^Quantity q] (assert-unit-type q :length) (round-maybe (-> q value u/meters->centimeters u/centimeters->inches)))
 
-(defn meters-squared [v] (Quantity. v :area))
+(defn meters-squared [v] (qm/* (Quantity. v :area) 1))
 (defn ->meters-squared [^Quantity q] (assert-unit-type q :area) (round-maybe (value q)))
 
 (defn centimeters-squared [v] (Quantity. (u/centimeters-squared->meters-squared v) :area))
@@ -119,7 +118,7 @@
 (defn inches-squared [v] (Quantity. (u/inches-squared->meters-squared v) :area))
 (defn ->inches-squared [^Quantity q] (assert-unit-type q :area) (round-maybe (u/meters-squared->inches-squared (value q))))
 
-(defn seconds [v] (Quantity. v :time))
+(defn seconds [v] (qm/* (Quantity. v :time) 1))
 (defn ->seconds [^Quantity q] (assert-unit-type q :time) (round-maybe (value q)))
 
 (defn minutes [v] (Quantity. (u/minutes->seconds v) :time))
@@ -128,7 +127,7 @@
 (defn hours [v] (Quantity. (u/hours->seconds v) :time))
 (defn ->hours [^Quantity q] (assert-unit-type q :time) (round-maybe (u/seconds->hours (value q))))
 
-(defn meters-per-second [v] (Quantity. v :speed))
+(defn meters-per-second [v] (qm/* (Quantity. v :speed) 1))
 (defn ->meters-per-second [^Quantity q] (assert-unit-type q :speed) (round-maybe (value q)))
 
 (defn kilometers-per-hour [v] (Quantity. (u/kilometers-per-hour->meters-per-second v) :speed))
@@ -140,10 +139,10 @@
 (defn feet-per-minute [v] (Quantity. (u/feet-per-minute->meters-per-second v) :speed))
 (defn ->feet-per-minute [^Quantity q] (assert-unit-type q :speed) (round-maybe (u/meters-per-second->feet-per-minute (value q))))
 
-(defn meters-per-second-squared [v] (Quantity. v :acceleration))
+(defn meters-per-second-squared [v] (qm/* (Quantity. v :acceleration) 1))
 (defn ->meters-per-second-squared [^Quantity q] (assert-unit-type q :acceleration) (round-maybe (value q)))
 
-(defn kilograms [v] (Quantity. v :mass))
+(defn kilograms [v] (qm/* (Quantity. v :mass) 1))
 (defn ->kilograms [^Quantity q] (assert-unit-type q :mass) (round-maybe (value q)))
 
 (defn grams [v] (Quantity. (u/grams->kilograms v) :mass))
@@ -158,7 +157,7 @@
 (defn grains [v] (Quantity. (u/grains->kilograms v) :mass))
 (defn ->grains [^Quantity q] (assert-unit-type q :mass) (round-maybe (u/kilograms->grains (value q))))
 
-(defn kelvin [v] (Quantity. v :temperature))
+(defn kelvin [v] (qm/* (Quantity. v :temperature) 1))
 (defn ->kelvin [^Quantity q] (assert-unit-type q :temperature) (round-maybe (value q)))
 
 (defn celsius [v] (Quantity. (u/celsius->kelvin v) :temperature))
@@ -170,7 +169,7 @@
 (defn fahrenheit [v] (Quantity. (u/fahrenheit->kelvin v) :temperature))
 (defn ->fahrenheit [^Quantity q] (assert-unit-type q :temperature) (round-maybe (u/kelvin->fahrenheit (value q))))
 
-(defn unitless [v] (Quantity. v :unitless))
+(defn unitless [v] (qm/* (Quantity. v :unitless) 1))
 (defn ->unitless [^Quantity q] (assert-unit-type q :unitless) (round-maybe (value q)))
 
 (defmethod qm/+ [Quantity Quantity]
@@ -190,11 +189,11 @@
     (Quantity. (qm/* (value a) (value b)) new-unit-type)
     (throw (ex-info "Multiplying two Quantities must result in a known unit-type" {:a a :b b}))))
 
-(defmethod qm/* [#?(:clj java.lang.Number :cljs js/Number) Quantity]
+(defmethod qm/* [:quantus/number Quantity]
   [a ^Quantity b]
   (Quantity. (qm/* a (value b)) (unit-type b)))
 
-(defmethod qm/* [Quantity #?(:clj java.lang.Number :cljs js/Number)]
+(defmethod qm/* [Quantity :quantus/number]
   [^Quantity a b]
   (Quantity. (qm/* (value a) b) (unit-type a)))
 
@@ -204,11 +203,11 @@
     (Quantity. (qm/divide (value a) (value b)) new-unit-type)
     (throw (ex-info "Dividing two Quantities must result in a known unit-type" {:a a :b b}))))
 
-(defmethod qm/divide [Quantity #?(:clj java.lang.Number :cljs js/Number)]
+(defmethod qm/divide [Quantity :quantus/number]
   [^Quantity a b]
   (Quantity. (qm/divide (value a) b) (unit-type a)))
 
-(defmethod qm/divide [#?(:clj java.lang.Number :cljs js/Number) Quantity]
+(defmethod qm/divide [:quantus/number Quantity]
   [#?@(:clj [^java.lang.Number a] :cljs [^js/Number a]) ^Quantity b]
   (if-let [new-unit-type (get-in allowed-operations [:divisions [:unitless (unit-type b)]])]
     (Quantity. (qm/divide a (value b)) new-unit-type)
@@ -218,7 +217,7 @@
   [^Quantity a]
   (Quantity. (qm/abs (value a)) (unit-type a)))
 
-;; ;; (defmethod gm/pow [Quantity #?(:clj java.lang.Number :cljs js/Number)]
+;; ;; (defmethod gm/pow [Quantity :quantus/number]
 ;; ;;   [^Quantity a n]
 ;; ;;   (Quantity. (:type a) (Math/pow (value a) n)
 ;; ;;              (let [^Unit unit (:unit a)]
@@ -261,6 +260,7 @@
   [^Quantity a ^Quantity b]
   (assert-unit-type-match a b)
   (qm/<= (value a) (value b)))
+
 
 ;;; Private
 (defn- multiplication

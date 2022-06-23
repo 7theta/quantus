@@ -70,7 +70,7 @@
   [^AngleQuantity a ^AngleQuantity b]
   (AngleQuantity. (+ (q/value a) (q/value b))))
 
-(defmethod qm/+ [AngleQuantity #?(:clj java.lang.Number :cljs js/Number)]
+(defmethod qm/+ [AngleQuantity :quantus/number]
   [^AngleQuantity a b]
   (AngleQuantity. (+ (q/value a) b)))
 
@@ -95,11 +95,11 @@
   [a b]
   (mod (core/* a b) two-pi))
 
-(defmethod qm/* [#?(:clj java.lang.Number :cljs js/Number) AngleQuantity]
+(defmethod qm/* [:quantus/number AngleQuantity]
   [a ^AngleQuantity b]
   (AngleQuantity. (* a (q/value b))))
 
-(defmethod qm/* [AngleQuantity #?(:clj java.lang.Number :cljs js/Number)]
+(defmethod qm/* [AngleQuantity :quantus/number]
   [^AngleQuantity a b]
   (AngleQuantity. (* (q/value a) b)))
 

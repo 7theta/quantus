@@ -9,8 +9,7 @@
 #_(defn- add-hashcode [hash x]
     (core/+ hash (core/* 37 hash) (Float/floatToIntBits x)))
 
-(defprotocol
-    CoordinateProtocol
+(defprotocol CoordinateProtocol
   (^double x [this])
   (^double y [this])
   (^double z [this]))
@@ -84,8 +83,8 @@
   "Create a coordinateXY"
   qm/arity-dispatch)
 
-(defmethod xy [js/Number
-               js/Number]
+(defmethod xy [:quantus/number
+               :quantus/number]
   [x y]
   (CoordinateXY. x y))
 
@@ -104,12 +103,12 @@
   (xy (+ (x a) (x b))
       (+ (y a) (y b))))
 
-(defmethod qm/+ [CoordinateXY js/Number]
+(defmethod qm/+ [CoordinateXY :quantus/number]
   [^CoordinateXY a b]
   (xy (+ (x a) b)
       (+ (y a) b)))
 
-(defmethod qm/+ [js/Number CoordinateXY]
+(defmethod qm/+ [:quantus/number CoordinateXY]
   [a ^CoordinateXY b]
   (xy (+ a (x b))
       (+ a (y b))))
@@ -119,12 +118,12 @@
   (xy (- (x a) (x b))
       (- (y a) (y b))))
 
-(defmethod qm/- [CoordinateXY js/Number]
+(defmethod qm/- [CoordinateXY :quantus/number]
   [^CoordinateXY a b]
   (xy (- (x a) b)
       (- (y a) b)))
 
-(defmethod qm/- [js/Number CoordinateXY]
+(defmethod qm/- [:quantus/number CoordinateXY]
   [a ^CoordinateXY b]
   (xy (- a (x b))
       (- a (y b))))
@@ -134,12 +133,12 @@
   (xy (* (x a) (x b))
       (* (y a) (y b))))
 
-(defmethod qm/* [CoordinateXY js/Number]
+(defmethod qm/* [CoordinateXY :quantus/number]
   [^CoordinateXY a b]
   (xy (* (x a) b)
       (* (y a) b)))
 
-(defmethod qm/* [js/Number CoordinateXY]
+(defmethod qm/* [:quantus/number CoordinateXY]
   [a ^CoordinateXY b]
   (xy (* a (x b))
       (* a (y b))))
@@ -149,7 +148,7 @@
   (xy (/ (x a) (x b))
       (/ (y a) (y b))))
 
-(defmethod qm/divide [CoordinateXY js/Number]
+(defmethod qm/divide [CoordinateXY :quantus/number]
   [^CoordinateXY a b]
   (xy (/ (x a) b)
       (/ (y a) b)))
@@ -157,11 +156,11 @@
 
 (defmulti xyz
   "Create a coordinateXYZ"
-  (fn [x y z] [(type x) (type y) (type z)]))
+  (fn [x y z] [(qm/resolve-type x) (qm/resolve-type y) (qm/resolve-type z)]))
 
-(defmethod xyz [js/Number
-                js/Number
-                js/Number]
+(defmethod xyz [:quantus/number
+                :quantus/number
+                :quantus/number]
   [x y z]
   (CoordinateXYZ. x y z))
 
@@ -182,13 +181,13 @@
        (+ (y a) (y b))
        (+ (z a) (z b))))
 
-(defmethod qm/+ [CoordinateXYZ js/Number]
+(defmethod qm/+ [CoordinateXYZ :quantus/number]
   [^CoordinateXYZ a b]
   (xyz (+ (x a) b)
        (+ (y a) b)
        (+ (z a) b)))
 
-(defmethod qm/+ [js/Number CoordinateXYZ]
+(defmethod qm/+ [:quantus/number CoordinateXYZ]
   [a ^CoordinateXYZ b]
   (xyz (+ a (x b))
        (+ a (y b))
@@ -200,13 +199,13 @@
        (- (y a) (y b))
        (- (z a) (z b))))
 
-(defmethod qm/- [CoordinateXYZ js/Number]
+(defmethod qm/- [CoordinateXYZ :quantus/number]
   [^CoordinateXYZ a b]
   (xyz (- (x a) b)
        (- (y a) b)
        (- (z a) b)))
 
-(defmethod qm/- [js/Number CoordinateXYZ]
+(defmethod qm/- [:quantus/number CoordinateXYZ]
   [a ^CoordinateXYZ b]
   (xyz (- a (x b))
        (- a (y b))
@@ -218,13 +217,13 @@
        (* (y a) (y b))
        (* (z a) (z b))))
 
-(defmethod qm/* [CoordinateXYZ js/Number]
+(defmethod qm/* [CoordinateXYZ :quantus/number]
   [^CoordinateXYZ a b]
   (xyz (* (x a) b)
        (* (y a) b)
        (* (z a) b)))
 
-(defmethod qm/* [js/Number CoordinateXYZ]
+(defmethod qm/* [:quantus/number CoordinateXYZ]
   [a ^CoordinateXYZ b]
   (xyz (* a (x b))
        (* a (y b))
@@ -236,7 +235,7 @@
        (/ (y a) (y b))
        (/ (z a) (z b))))
 
-(defmethod qm/divide [CoordinateXYZ js/Number]
+(defmethod qm/divide [CoordinateXYZ :quantus/number]
   [^CoordinateXYZ a b]
   (xyz (/ (x a) b)
        (/ (y a) b)

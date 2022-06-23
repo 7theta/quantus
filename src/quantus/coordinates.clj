@@ -10,8 +10,7 @@
 (defn- add-hashcode [hash x]
   (core/+ hash (core/* 37 hash) (Float/floatToIntBits x)))
 
-(defprotocol
-    CoordinateProtocol
+(defprotocol CoordinateProtocol
   (^double x [this])
   (^double y [this])
   (^double z [this]))
@@ -346,18 +345,17 @@
     coll
     (apply coordinate coll)))
 
-(do
-  (defmethod print-method CoordinateXY [^CoordinateXY c ^java.io.Writer w]
-    (.write w (.toString c)))
+(defmethod print-method CoordinateXY [^CoordinateXY c ^java.io.Writer w]
+  (.write w (.toString c)))
 
-  (defmethod print-method CoordinateXYZ [^CoordinateXYZ c ^java.io.Writer w]
-    (.write w (.toString c)))
+(defmethod print-method CoordinateXYZ [^CoordinateXYZ c ^java.io.Writer w]
+  (.write w (.toString c)))
 
-  (defmethod print-dup CoordinateXY [^CoordinateXY c ^java.io.Writer w]
-    (.write w (.toString c)))
+(defmethod print-dup CoordinateXY [^CoordinateXY c ^java.io.Writer w]
+  (.write w (.toString c)))
 
-  (defmethod print-dup CoordinateXYZ [^CoordinateXYZ c ^java.io.Writer w]
-    (.write w (.toString c))))
+(defmethod print-dup CoordinateXYZ [^CoordinateXYZ c ^java.io.Writer w]
+  (.write w (.toString c)))
 
 ;; XY
 
@@ -365,8 +363,7 @@
   "Create a coordinateXY"
   qm/arity-dispatch)
 
-(defmethod xy [java.lang.Number
-               java.lang.Number]
+(defmethod xy [:quantus/number :quantus/number]
   [x y]
   (CoordinateXY. x y))
 
@@ -403,11 +400,11 @@
   [^CoordinateXY a ^CoordinateXY b]
   (* a b))
 
-(defmethod qm/* [CoordinateXY java.lang.Number]
+(defmethod qm/* [CoordinateXY :quantus/number]
   [^CoordinateXY a b]
   (scale a b))
 
-(defmethod qm/* [java.lang.Number CoordinateXY]
+(defmethod qm/* [:quantus/number CoordinateXY]
   [a ^CoordinateXY b]
   (scale b a))
 
@@ -415,7 +412,7 @@
   [^CoordinateXY a ^CoordinateXY b]
   (/ a b))
 
-(defmethod qm/divide [CoordinateXY java.lang.Number]
+(defmethod qm/divide [CoordinateXY :quantus/number]
   [^CoordinateXY a b]
   (scale a (core// b)))
 
@@ -455,11 +452,11 @@
 
 (defmulti xyz
   "Create a coordinateXYZ"
-  (fn [x y z] [(type x) (type y) (type z)]))
+  (fn [x y z] [(qm/resolve-type x) (qm/resolve-type y) (qm/resolve-type z)]))
 
-(defmethod xyz [java.lang.Number
-                java.lang.Number
-                java.lang.Number]
+(defmethod xyz [:quantus/number
+                :quantus/number
+                :quantus/number]
   [x y z]
   (CoordinateXYZ. x y z))
 
@@ -494,11 +491,11 @@
   [^CoordinateXYZ a ^CoordinateXYZ b]
   (* a b))
 
-(defmethod qm/* [CoordinateXYZ java.lang.Number]
+(defmethod qm/* [CoordinateXYZ :quantus/number]
   [^CoordinateXYZ a b]
   (scale a b))
 
-(defmethod qm/* [java.lang.Number CoordinateXYZ]
+(defmethod qm/* [:quantus/number CoordinateXYZ]
   [a ^CoordinateXYZ b]
   (scale b a))
 
@@ -506,6 +503,6 @@
   [^CoordinateXYZ a ^CoordinateXYZ b]
   (/ a b))
 
-(defmethod qm/divide [CoordinateXYZ java.lang.Number]
+(defmethod qm/divide [CoordinateXYZ :quantus/number]
   [^CoordinateXYZ a b]
   (scale a (core// b)))
