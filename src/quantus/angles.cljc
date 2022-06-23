@@ -56,10 +56,10 @@
   (when-not (instance? AngleQuantity aq)
     (throw (ex-info "Angle Quantity expected" {:aq aq}))))
 
-(defn degrees [v] (AngleQuantity. (mod (degrees->radians v) two-pi)))
+(defn degrees [v] (qm/* (AngleQuantity. (mod (degrees->radians v) two-pi)) 1))
 (defn ->degrees [^AngleQuantity aq] (assert-angle-quantity aq) (radians->degrees (q/value aq)))
 
-(defn radians [v] (AngleQuantity. (mod v two-pi)))
+(defn radians [v] (qm/* (AngleQuantity. (mod v two-pi)) 1))
 (defn ->radians [^AngleQuantity aq] (assert-angle-quantity aq) (q/value aq))
 
 (defn +
@@ -70,7 +70,7 @@
   [^AngleQuantity a ^AngleQuantity b]
   (AngleQuantity. (+ (q/value a) (q/value b))))
 
-(defmethod qm/+ [AngleQuantity #?(:clj java.lang.Number :cljs js/Number)]
+(defmethod qm/+ [AngleQuantity :quantus/number]
   [^AngleQuantity a b]
   (AngleQuantity. (+ (q/value a) b)))
 
@@ -95,11 +95,11 @@
   [a b]
   (mod (core/* a b) two-pi))
 
-(defmethod qm/* [#?(:clj java.lang.Number :cljs js/Number) AngleQuantity]
+(defmethod qm/* [:quantus/number AngleQuantity]
   [a ^AngleQuantity b]
   (AngleQuantity. (* a (q/value b))))
 
-(defmethod qm/* [AngleQuantity #?(:clj java.lang.Number :cljs js/Number)]
+(defmethod qm/* [AngleQuantity :quantus/number]
   [^AngleQuantity a b]
   (AngleQuantity. (* (q/value a) b)))
 

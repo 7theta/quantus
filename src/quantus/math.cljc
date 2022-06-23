@@ -13,10 +13,14 @@
   (:refer-clojure :exclude [+ - * / = not= < > <= >= zero? pos? neg? min max abs #?(:cljs divide)])
   #?(:import [java.lang Number]))
 
+(defn resolve-type
+  [x]
+  (if (number? x) :quantus/number (type x)))
+
 (defn arity-dispatch
   ([] ::nulary)
-  ([x] (type x)) ; unary
-  ([x y] [(type x) (type y)]) ; binary
+  ([x] (resolve-type x)) ; unary
+  ([x y] [(resolve-type x) (resolve-type y)]) ; binary
   ([x y & more] ::nary))
 
 ;; Addition
@@ -27,9 +31,9 @@
 
 (defmethod + ::nulary [] 0)
 
-(defmethod + #?(:clj Number :cljs js/Number) [x] x)
+(defmethod + :quantus/number [x] x)
 
-(defmethod + [#?(:clj Number :cljs js/Number) #?(:clj Number :cljs js/Number)]
+(defmethod + [:quantus/number :quantus/number]
   [x y]
   (clojure.core/+ x y))
 
@@ -46,9 +50,9 @@
 
 (defmethod - ::nulary [] 0)
 
-(defmethod - #?(:clj Number :cljs js/Number) [x] (clojure.core/- x))
+(defmethod - :quantus/number [x] (clojure.core/- x))
 
-(defmethod - [#?(:clj Number :cljs js/Number) #?(:clj Number :cljs js/Number)]
+(defmethod - [:quantus/number :quantus/number]
   [x y]
   (clojure.core/- x y))
 
@@ -64,9 +68,9 @@
 
 (defmethod * ::nulary [] 1)
 
-(defmethod * #?(:clj Number :cljs js/Number) [x] x)
+(defmethod * :quantus/number [x] x)
 
-(defmethod * [#?(:clj Number :cljs js/Number) #?(:clj Number :cljs js/Number)]
+(defmethod * [:quantus/number :quantus/number]
   [x y]
   (clojure.core/* x y))
 
@@ -81,9 +85,9 @@
   product of all other arguments"
   arity-dispatch)
 
-(defmethod divide #?(:clj Number :cljs js/Number) [x] (clojure.core// x))
+(defmethod divide :quantus/number [x] (clojure.core// x))
 
-(defmethod divide [#?(:clj Number :cljs js/Number) #?(:clj Number :cljs js/Number)]
+(defmethod divide [:quantus/number :quantus/number]
   [x y]
   (clojure.core// x y))
 
@@ -120,7 +124,7 @@
   "Return true if `x` is zero."
   type)
 
-(defmethod zero? #?(:clj Number :cljs js/Number) [x] (clojure.core/zero? x))
+(defmethod zero? :quantus/number [x] (clojure.core/zero? x))
 
 ;; pos?
 
@@ -128,7 +132,7 @@
   "Return true if `x` is positive."
   type)
 
-(defmethod pos? #?(:clj Number :cljs js/Number) [x] (clojure.core/pos? x))
+(defmethod pos? :quantus/number [x] (clojure.core/pos? x))
 
 ;; neg?
 
@@ -136,7 +140,7 @@
   "Return true if `x` is negative."
   type)
 
-(defmethod neg? #?(:clj Number :cljs js/Number) [x] (clojure.core/neg? x))
+(defmethod neg? :quantus/number [x] (clojure.core/neg? x))
 
 ;; Absolute value
 
@@ -226,8 +230,8 @@
   "Return true if all arguments are equal."
   arity-dispatch)
 
-(defmethod = #?(:clj Number :cljs js/Number) [x] true)
-(defmethod = [#?(:clj Number :cljs js/Number) #?(:clj Number :cljs js/Number)] [x y] (clojure.core/= x y))
+(defmethod = :quantus/number [x] true)
+(defmethod = [:quantus/number :quantus/number] [x y] (clojure.core/= x y))
 
 (defmethod = ::nary
   [x y & more]
@@ -248,8 +252,8 @@
   "Return true if each argument is larger than the following ones."
   arity-dispatch)
 
-(defmethod > #?(:clj Number :cljs js/Number) [x] true)
-(defmethod > [#?(:clj Number :cljs js/Number) #?(:clj Number :cljs js/Number)] [x y] (clojure.core/> x y))
+(defmethod > :quantus/number [x] true)
+(defmethod > [:quantus/number :quantus/number] [x y] (clojure.core/> x y))
 
 (defmethod > ::nary
   [x y & more]
@@ -265,8 +269,8 @@
   "Return true if each argument is smaller than the following ones."
   arity-dispatch)
 
-(defmethod < #?(:clj Number :cljs js/Number) [x] true)
-(defmethod < [#?(:clj Number :cljs js/Number) #?(:clj Number :cljs js/Number)] [x y] (clojure.core/< x y))
+(defmethod < :quantus/number [x] true)
+(defmethod < [:quantus/number :quantus/number] [x y] (clojure.core/< x y))
 
 (defmethod < ::nary
   [x y & more]
@@ -282,8 +286,8 @@
   "Return true if each argument is larger than or equal to the following ones."
   arity-dispatch)
 
-(defmethod >= #?(:clj Number :cljs js/Number) [x] true)
-(defmethod >= [#?(:clj Number :cljs js/Number) #?(:clj Number :cljs js/Number)] [x y] (clojure.core/>= x y))
+(defmethod >= :quantus/number [x] true)
+(defmethod >= [:quantus/number :quantus/number] [x y] (clojure.core/>= x y))
 
 (defmethod >= ::nary
   [x y & more]
@@ -299,8 +303,8 @@
   "Return true if each argument is smaller than or equal to the following ones."
   arity-dispatch)
 
-(defmethod <= #?(:clj Number :cljs js/Number) [x] true)
-(defmethod <= [#?(:clj Number :cljs js/Number) #?(:clj Number :cljs js/Number)] [x y] (clojure.core/<= x y))
+(defmethod <= :quantus/number [x] true)
+(defmethod <= [:quantus/number :quantus/number] [x y] (clojure.core/<= x y))
 
 (defmethod <= ::nary
   [x y & more]
