@@ -122,7 +122,7 @@
 
 (defmulti zero?
   "Return true if `x` is zero."
-  type)
+  resolve-type)
 
 (defmethod zero? :quantus/number [x] (clojure.core/zero? x))
 
@@ -130,7 +130,7 @@
 
 (defmulti pos?
   "Return true if `x` is positive."
-  type)
+  resolve-type)
 
 (defmethod pos? :quantus/number [x] (clojure.core/pos? x))
 
@@ -138,7 +138,7 @@
 
 (defmulti neg?
   "Return true if `x` is negative."
-  type)
+  resolve-type)
 
 (defmethod neg? :quantus/number [x] (clojure.core/neg? x))
 
@@ -147,7 +147,7 @@
 (defmulti abs
   "Return the absolute value of `x`. If `x` is a BigDecimal, abs takes an
   optional `math-context` argument."
-  (fn [x & more] (type x)))
+  (fn [x & more] (resolve-type x)))
 
 (defmethod abs :default
   [x]
@@ -181,7 +181,7 @@
 
 (defmulti sqrt
   "Return the square root of `x`."
-  (fn [x & more] (type x)))
+  (fn [x & more] (resolve-type x)))
 
 #?(:clj (defmethod sqrt Number [x] (clojure.math/sqrt x))
    :cljs (defmethod sqrt js/Number [x] (js/Math.sqrt x)))
@@ -190,7 +190,7 @@
 
 (defmulti pow
   "Return the power of `x`."
-  (fn [x p & more] [(type x) (type p)]))
+  (fn [x p & more] [(resolve-type x) (resolve-type p)]))
 
 #?(:clj (defmethod pow [Number Number] [x p] (clojure.math/pow x p))
    :cljs (defmethod pow [js/Number js/Number] [x p] (js/Math.pow x p)))
@@ -202,7 +202,7 @@
   argument is required. If `x` is a Ratio, it is converted to a Double before
   rounding. If a `x` is a Ratio and a `math-context` is provided, it is
   converted to a BigDecimal before rounding."
-  (fn [x & more] (type x)))
+  (fn [x & more] (resolve-type x)))
 
 #?(:cljs (defmethod round js/Number [x] (js/Math.round x)))
 
