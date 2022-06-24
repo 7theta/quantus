@@ -181,7 +181,7 @@
 
 (defmulti sqrt
   "Return the square root of `x`."
-  (fn [x & more] (resolve-type x)))
+  (fn [x & more] (type x)))
 
 #?(:clj (defmethod sqrt Number [x] (clojure.math/sqrt x))
    :cljs (defmethod sqrt js/Number [x] (js/Math.sqrt x)))
@@ -190,7 +190,7 @@
 
 (defmulti pow
   "Return the power of `x`."
-  (fn [x p & more] [(resolve-type x) (resolve-type p)]))
+  (fn [x p & more] [(type x) (type p)]))
 
 #?(:clj (defmethod pow [Number Number] [x p] (clojure.math/pow x p))
    :cljs (defmethod pow [js/Number js/Number] [x p] (js/Math.pow x p)))
@@ -202,7 +202,7 @@
   argument is required. If `x` is a Ratio, it is converted to a Double before
   rounding. If a `x` is a Ratio and a `math-context` is provided, it is
   converted to a BigDecimal before rounding."
-  (fn [x & more] (resolve-type x)))
+  (fn [x & more] (type x)))
 
 #?(:cljs (defmethod round js/Number [x] (js/Math.round x)))
 
